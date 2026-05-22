@@ -58,19 +58,21 @@ node {baseDir}/scripts/call_informat.js _query_app_define_designer --appId <appI
 
 ## Configuration
 
-Two methods supported, system environment variables take priority over `.env` file:
+Two methods supported, system environment variables take priority over `.env` file.
+
+**INFORMAT_HOST**: The Informat platform address. Usually set to `https://ai.ainformat.com/` (public SaaS), or your private deployment address.
 
 ```bash
 # Method 1: System Environment Variables (Priority)
-export INFORMAT_HOST=<informat host>
+export INFORMAT_HOST=https://ai.ainformat.com/
 export INFORMAT_AGENT_TOKEN=<your-agent-token>
 
 # Method 2: Edit {baseDir}/scripts/.env
-INFORMAT_HOST=<informat host>
+INFORMAT_HOST=https://ai.ainformat.com/
 INFORMAT_AGENT_TOKEN=<your-agent-token>
 ```
 
-> INFORMAT_AGENT_TOKEN can be obtained at: <informat host>/workbench/account/aiAgentApiKey
+> 💡 **Get your token**: Visit `<INFORMAT_HOST>/workbench/account/aiAgentApiKey` (e.g. `https://ai.ainformat.com/workbench/account/aiAgentApiKey`) to obtain your `INFORMAT_AGENT_TOKEN`.
 
 ## Query Before Operation -- The Most Important Rule
 
