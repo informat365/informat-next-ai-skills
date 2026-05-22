@@ -4,6 +4,8 @@ description: "Informat AI Intelligent Development Platform system method invocat
 when_to_use: "When the user wants to operate Informat platform features such as data tables, applications, APIs, automations, scripts, etc. This includes creating tables, querying data, configuring automation workflows, developing scripts, and all other Informat platform related operations."
 ---
 
+[中文文档](README.zh-CN.md)
+
 # Informat Platform System Methods
 
 Total 178 methods. The parameter definition file for each method is under `{baseDir}/references/`.
