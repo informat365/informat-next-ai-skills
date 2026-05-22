@@ -14,8 +14,7 @@
         },
 		"moduleId": {
           "type": "string",
-          "description": "Can only fill in designer-ai-agent-app-setup",
-		  "default":"designer-ai-agent-app-setup"
+          "description": ""
         },
 		"aiModuleId": {
           "type": "string",

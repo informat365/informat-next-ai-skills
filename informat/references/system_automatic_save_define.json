@@ -2,13 +2,13 @@
 	"type": "function",
 	"function": {
 		"name": "_automatic_save_define",
-		"description": "Save automation configuration. Used to create or update a complete automation workflow definition.",
+		"description": "Save automation configuration. Used to create or update a complete automation workflow definition. Must call _read_informat_expression_doc first to read expression documentation before calling this method. Note: If no interactive steps are used, do not use automation; use scripts to implement the project instead. Steps with type starting with Output are interactive steps.",
 		"parameters": {
 			"type": "object",
 			"properties": {
 				"id": {
 					"type": "string",
-					"description": "Automation ID (system unique). Must NOT be provided when creating; must be provided when editing."
+					"description": "Automation ID (use camelCase naming, must be unique within the system, must not duplicate existing automation IDs, cannot be empty)."
 				},
 				"name": {
 					"type": "string",
@@ -20,18 +20,21 @@
 				},
 				"varList": {
 					"type": "array",
-					"description": "Variable definition list.",
+					"description": "Input variable definition list.",
 					"items": {
 						"type": "object",
 						"properties": {
 							"id": {
-								"type": "string"
+								"type": "string",
+								"description": "Input parameter type (String, Array<String>, Array<Object>, Integer, Double, Boolean, Object, HttpRequest)."
 							},
 							"name": {
-								"type": "string"
+								"type": "string",
+								"description": "Variable name. Strongly recommended to use camelCase naming, e.g. recordId. Use ${name} in step expressions to reference the variable value, e.g. ${recordId}."
 							},
 							"data": {
-								"type": "string"
+								"type": "string",
+								"description": "Test data, only effective during local testing."
 							},
 							"optional": {
 								"type": "boolean",
@@ -100,7 +103,7 @@
 						},
 						"opt": {
 							"type": "string",
-							"description": "Operator. Only one of the following values can be used (corresponding to Java OPT_* constants):\neq (equals), ne (not equals), gt (greater than), ge (greater than or equal), lt (less than), le (less than or equal),\ncontains (contains), notcontains (does not contain), startswith (starts with), endswith (ends with),\nisnull (is null), isnotnull (is not null), in (in list), notin (not in list),\nbetween (between range), notbetween (not between range),\nparentrooteq (root parent equals), parenteq (parent equals), parentcontains (parent contains),\nmultipleandquery (multi-value AND query), multipleorquery (multi-value OR query), intree (in tree)"
+							"description": "Operator. Only one of the following values can be used (corresponding to Java OPT_* constants):\neq (equals), ne (not equals), gt (greater than), ge (greater than or equal), lt (less than), le (less than or equal),\ncontains (contains), notcontains (does not contain), startswith (starts with), endswith (ends with),\nisnull (is null), isnotnull (is not null), in (in list), notin (not in list),\nparentrooteq (root parent equals), parenteq (parent equals), parentcontains (parent contains),\nmultipleandquery (multi-value AND query), multipleorquery (multi-value OR query), intree (in tree)"
 						},
 						"value": {
 							"type": "string",
@@ -152,6 +155,55 @@
 					],
 					"additionalProperties": false
 				},
+				"KeyValue": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "string",
+							"description": "Key name expression"
+						},
+						"value": {
+							"type": "string",
+							"description": "Value expression"
+						}
+					},
+					"required": [
+						"name",
+						"value"
+					],
+					"additionalProperties": false
+				},
+				"Var": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "string",
+							"description": "Variable name"
+						},
+						"valueVar": {
+							"type": "string",
+							"description": "Value expression"
+						}
+					},
+					"required": [
+						"name",
+						"valueVar"
+					],
+					"additionalProperties": false
+				},
+				"CallAutomaticFuncArg": {
+					"type": "object",
+					"properties": {
+						"valueVar": {
+							"type": "string",
+							"description": "Argument expression"
+						}
+					},
+					"required": [
+						"valueVar"
+					],
+					"additionalProperties": false
+				},
 				"AutomaticFunction": {
 					"type": "object",
 					"properties": {
@@ -166,7 +218,7 @@
 						},
 						"type": {
 							"type": "string",
-							"description": "Step type. [Strict constraint] Only one of the following values can be used; using any type not listed is strictly prohibited:\nLog (print log), Http (HTTP request), If (conditional branch; must include two child nodes: If.true and If.false),\nIf.true (true branch child node of If), If.false (false branch child node of If),\nForEach (loop iteration), Abort (terminate execution), Sleep (wait), Script (execute script),\nInsertRecord (insert record), UpdateRecord (update record), DeleteRecord (delete record),\nQueryRecordList (query record list), QueryRecordListCount (query record count),\nSetReturnValue (set return value), Notification (send notification),\nOutputDynamicForm (output dynamic form), OutputConfirm (output confirmation dialog), OutputUpload (file upload interaction)"
+							"description": "Step type. [Strict constraint] Only the following values are allowed:\n[Control Flow] If (conditional branch), If.true (true branch), If.false (false branch), ForEach (loop), While (conditional loop), CallScript (call script function), SetReturnValue (set return value)\n[UI-Dialog] OutputConfirm (confirmation dialog), OutputUpload (upload file), OutputUploadExcel (upload Excel), OutputDynamicForm (dynamic form), OutputDynamicTable (dynamic table), OutputRecordInfo (record detail), OutputRecordCreate (create record form), OutputRecordSelect (select record), OutputFormDesigner (form designer), OutputOpenFile (file preview), OutputRichtext (rich text dialog), OutputString (string dialog), OutputPageDesigner (print template), OutputOpenSplitDrawer (drawer/dialog), OutputOpenWebsite (open website page)\n[UI-Toast] OutputToast (toast message), OutputNotification (notification)\n[UI-Form] OutputSetFormValue (set form field value), OutputFormValidate (form validation), OutputRecordFormRefresh (refresh form), OutputCloseRecordInfo (close record detail), OutputSetFormTableSelection (set form sub-table selection)\n[UI-Table] OutputTableRefresh (refresh table), OutputTableEvent (table event), OutputRefreshTableViewColumn (refresh columns), OutputSetTableViewFilter (set filter), OutputSetTableViewFilterCondition (set filter conditions), OutputSetTableViewOrderBy (set sort order), OutputSetTableViewExpand (set expand state), OutputSetTableViewSelection (set selection), OutputSetTableViewActiveRecords (set active records), OutputSetTableViewRootRecordId (set root node), OutputSetTableViewData (set table data)\n[UI-Dashboard] OutputRefreshDashboardCard (refresh dashboard card), OutputSetDashboardFilter (set dashboard filter)\n[UI-Page] OutputOpenUrl (open URL), OutputExternalUrl (external page), OutputSetExternalUrl (set external URL), OutputCloseModuleVisitHistory (close visit history)\n[UI-Print/Download] OutputPrintRecord (print record), OutputPrintRecordList (print record list), OutputPrintByPageDesigner (print by template), OutputDownloadFile (download file), OutputDownloadExcel (download Excel)\n[UI-Script/Clipboard] OutputInjectScript (inject script), OutputExecuteScript (execute script), OutputCopyClipboard (copy to clipboard), OutputGetAppClipboard (get app clipboard), OutputSetAppClipboard (set app clipboard)\n[UI-Media/Scanner] OutputPlayAudio (play audio), OutputPlayImage (preview image), OutputQRCodeScanner (QR scanner)\n[UI-Search/Message] OutputTextindexSearch (full-text search), OutputWebsitePageFireEvent (fire website page event)\n[UI-BPMN] OutputBpmnEvent (BPMN event), OutputBpmnProcess (start BPMN process), OutputBpmnTaskInfo (BPMN task info), OutputBpmnInstanceInfo (BPMN instance info)"
 						},
 						"disabled": {
 							"type": "boolean",
@@ -200,46 +252,6 @@
 							},
 							"default": []
 						},
-						"abortFuncSetting": {
-							"type": "object",
-							"properties": {
-								"isError": {
-									"type": "boolean",
-									"description": "Whether this is an abnormal termination. If true, the automation transaction will be rolled back."
-								},
-								"remarkVar": {
-									"type": "string",
-									"description": "Error message description. Only effective when isError is true"
-								}
-							},
-							"required": [
-								"isError"
-							]
-						},
-						"logFuncSetting": {
-							"type": "object",
-							"properties": {
-								"logValue": {
-									"type": "string",
-									"description": "Log output string expression."
-								}
-							},
-							"required": [
-								"expression"
-							]
-						},
-						"sleepFuncSetting": {
-							"type": "object",
-							"properties": {
-								"sleepTime": {
-									"type": "string",
-									"description": "Sleep time in milliseconds expression. For example, 5000 means 5 seconds."
-								}
-							},
-							"required": [
-								"sleepTime"
-							]
-						},
 						"ifFuncSetting": {
 							"type": "object",
 							"description": "If is a control node and cannot execute logic directly. It must contain exactly two child nodes: If.true and If.false. Actual execution steps must be defined inside their children.",
@@ -265,219 +277,813 @@
 								"listVar"
 							]
 						},
-						"httpFuncSetting": {
+						"outputConfirmFuncSetting": {
 							"type": "object",
+							"description": "Confirmation dialog configuration. Used to pause the automation flow and wait for user confirmation.",
+							"additionalProperties": false,
 							"properties": {
-								"url": {
+								"confirmDialogTitleVar": {
 									"type": "string",
-									"description": "Request URL. Expressions are supported."
+									"description": "Dialog title expression."
 								},
-								"method": {
+								"confirmTitleVar": {
 									"type": "string",
-									"description": "HTTP request method. Only one of the following values can be used: Get, Post, Put, Delete, Head, Options."
+									"description": "Confirmation message expression."
 								},
-								"headers": {
+								"confirmButtonTextVar": {
+									"type": "string",
+									"description": "Confirm button text expression."
+								},
+								"cancelButtonTextVar": {
+									"type": "string",
+									"description": "Cancel button text expression."
+								},
+								"confirmDialogTopVar": {
+									"type": "string",
+									"description": "Dialog top position expression."
+								},
+								"confirmDialogWidthVar": {
+									"type": "string",
+									"description": "Dialog width expression."
+								},
+								"confirmDialogHeightVar": {
+									"type": "string",
+									"description": "Dialog height expression."
+								},
+								"confirmTitleHorizontalAlign": {
+									"type": "string",
+									"description": "Text horizontal alignment. Only one of the following values can be used: left (align left), center (align center), right (align right)."
+								},
+								"confirmTitleVerticalAlign": {
+									"type": "string",
+									"description": "Text vertical alignment. Only one of the following values can be used: top (top), middle (middle), bottom (bottom)."
+								}
+							}
+						},
+						"outputUploadFuncSetting": {
+							"type": "object",
+							"description": "File upload interaction node",
+							"additionalProperties": false,
+							"properties": {
+								"acceptVar": {
+									"type": "string",
+									"description": "Allowed file type expression. Example: .pdf,.doc"
+								},
+								"titleVar": {
+									"type": "string",
+									"description": "Upload dialog title expression."
+								},
+								"dialogTopVar": {
+									"type": "string",
+									"description": "Dialog top position expression."
+								},
+								"uploadType": {
+									"type": "string",
+									"description": "File storage mode. File = store in shared storage. Base64 = return Base64 encoded content.",
+									"default": "File"
+								},
+								"maxSize": {
+									"type": "integer",
+									"description": "Maximum file size (MB). 0 means no limit.",
+									"minimum": 1
+								},
+								"multiple": {
+									"type": "boolean",
+									"description": "Allow multiple file uploads.",
+									"default": false
+								},
+								"limit": {
+									"type": "integer",
+									"description": "Maximum number of files allowed.",
+									"minimum": 1,
+									"default": 10
+								},
+								"remark": {
+									"type": "string",
+									"description": "Upload instruction text."
+								}
+							}
+						},
+						"outputDynamicFormFuncSetting": {
+							"type": "object",
+							"description": "Dynamic form configuration. ",
+							"properties": {
+								"dynamicFormTitleVar": {
+									"type": "string"
+								},
+								"dynamicFormHeightVar": {
+									"type": "string"
+								},
+								"dynamicFormStyle": {
+									"type": "string"
+								},
+								"dynamicFormFieldStyle": {
+									"type": "string"
+								},
+								"dynamicFormSubmitButtonTextVar": {
+									"type": "string",
+									"default": "Submit"
+								},
+								"dynamicFormTopVar": {
+									"type": "string"
+								},
+								"dynamicFormTitle": {
+									"type": "string"
+								},
+								"dynamicFormStyleWidth": {
+									"type": "integer",
+									"default": 700
+								},
+								"dynamicFormStyleWidthUnit": {
+									"type": "string"
+								},
+								"dynamicFormHeight": {
+									"type": "string"
+								},
+								"dynamicFormFieldList": {
+									"type": "array",
+									"description": "List of form field definitions.",
+									"items": {
+										"type": "object",
+										"description": "Field definition.",
+										"properties": {
+											"id": {
+												"type": "string",
+												"description": "Field ID. Must be lowercase letters, 10–13 characters, randomly generated and unique."
+											},
+											"name": {
+												"type": "string",
+												"description": "Field display name."
+											},
+											"key": {
+												"type": "string",
+												"description": "Field identifier. CamelCase format, letters only, randomly generated and unique."
+											},
+											"type": {
+												"type": "string",
+												"description": "Dynamic form field type. Only one of the following values can be used:\nSingleText (single-line text), MultiText (multi-line text), RichText (rich text),\nInteger (integer), Double (decimal), Date (date), ListSelect (dropdown select),\nAttachment (attachment), Checkbox (checkbox), User (user), Department (department),\nCoordinate (coordinate), RelationRecord (relation record), Children (tree structure), ID (business ID)"
+											}
+										},
+										"required": [
+											"id",
+											"name",
+											"key",
+											"type"
+										],
+										"additionalProperties": false
+									}
+								},
+								"dynamicFormFieldMappingList": {
+									"type": "array",
+									"description": "Default field values. Optional.",
+									"items": {
+										"type": "object",
+										"properties": {
+											"fieldId": {
+												"type": "string",
+												"description": "Target field ID. Must exist in dynamicFormFieldList."
+											},
+											"valueVar": {
+												"type": "string",
+												"description": "Value expression."
+											}
+										},
+										"required": [
+											"fieldId",
+											"valueVar"
+										],
+										"additionalProperties": false
+									}
+								},
+								"dynamicFormSubmitButtonText": {
+									"type": "string",
+									"description": "Submit button text."
+								},
+								"tableId": {
+									"type": "string",
+									"description": "Associated table ID."
+								},
+								"toolbarButtonList": {
+									"type": "array",
+									"description": "Toolbar button list.",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string",
+												"description": "Button ID."
+											},
+											"name": {
+												"type": "string",
+												"description": "Button name."
+											}
+										},
+										"required": [
+											"id",
+											"name"
+										],
+										"additionalProperties": false
+									}
+								},
+								"dynamicFormSubmitBeforeAutomaticId": {
+									"type": "string",
+									"description": "Automation ID to execute before form submission."
+								},
+								"dynamicFormSubmitBeforeAutomaticVarList": {
+									"type": "array",
+									"description": "Parameter list for the pre-submit automation.",
+									"items": {
+										"type": "object",
+										"properties": {
+											"valueVar": {
+												"type": "string",
+												"description": "Parameter expression."
+											}
+										},
+										"required": [
+											"valueVar"
+										],
+										"additionalProperties": false
+									}
+								},
+								"dynamicFormModal": {
+									"type": "boolean",
+									"description": "Whether to enable modal mode.",
+									"default": false
+								},
+								"submitDisableExpression": {
+									"type": "string"
+								},
+								"dynamicFormTop": {
+									"type": "string"
+								},
+								"dynamicFormEnableFieldValidate": {
+									"type": "boolean",
+									"description": "Whether to enable field validation. Currently fixed to false; do not set it to true.",
+									"default": false
+								},
+								"dynamicFormCloseAutomaticId": {
+									"type": "string"
+								},
+								"dynamicFormCloseAutomaticVarList": {
 									"type": "array",
 									"items": {
-								        "type": "object",
-								        "additionalProperties": false,
-								        "properties": {
-								          "name": {
-								            "type": "string"
-								          },
-								          "value": {
-								            "type": "string"
-								          }
-								        },
-								        "required": ["name", "value"]
-								      },
-								      "default": []
-								},
-								"bodyFormat": {
+										"type": "object",
+										"properties": {
+											"valueVar": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"valueVar"
+										],
+										"additionalProperties": false
+									}
+								}
+							},
+							"required": [
+								"tableId",
+								"dynamicFormFieldList"
+							],
+							"additionalProperties": false
+						},
+						"setReturnValueFuncSetting": {
+							"type": "object",
+							"description": "Set the return value of the automation.",
+							"properties": {
+								"valueVar": {
 									"type": "string",
-									"description": "Request body format. Only one of the following values can be used:\nNone (no request body), UrlEncode (URL-encoded, used together with bodyUrlEncodeList),\nFormData (form data, used together with bodyFormDataList), Raw (raw content, used together with bodyRaw)"
-								},
-								"bodyRaw": {
+									"description": "Return value expression"
+								}
+							},
+							"required": [
+								"valueVar"
+							]
+						},
+						"whileFuncSetting": {
+							"type": "object",
+							"description": "While loop. Repeats children steps while expression is true.",
+							"properties": {
+								"expression": {
 									"type": "string",
-									"description": "Raw request body content. Only valid when bodyFormat=Raw."
+									"description": "Boolean expression"
+								}
+							},
+							"required": [
+								"expression"
+							]
+						},
+						"iftrueFuncSetting": {
+							"type": "object",
+							"description": "If true branch marker node. No additional config."
+						},
+						"iffalseFuncSetting": {
+							"type": "object",
+							"description": "If false branch marker node. No additional config."
+						},
+						"callScriptFuncSetting": {
+							"type": "object",
+							"description": "Call a script function from a script module.",
+							"properties": {
+								"scriptId": {
+									"type": "string",
+									"description": "Script module ID"
 								},
-								"bodyFormDataList": {
-							      "type": "array",
-							      "description": "FormData body. Only valid when bodyFormat=FormData.",
-							      "items": {
-							        "$ref": "#/definitions/KeyValue"
-							      },
-							      "default": []
-							    },
-							    "bodyUrlEncodeList": {
-							      "type": "array",
-							      "description": "UrlEncode body. Only valid when bodyFormat=UrlEncode.",
-							      "items": {
-							        "$ref": "#/definitions/KeyValue"
-							      },
-							      "default": []
-							    },
-								"timeout": {
-									"type": "integer",
-									"description": "Request timeout in seconds. 0 means use default 30 seconds.",
-									"default": 30,
-									"minimum": 0
+								"func": {
+									"type": "string",
+									"description": "Function name to call"
 								},
-								"followRedirect": {
+								"args": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"valueVar": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"valueVar"
+										]
+									}
+								},
+								"catchException": {
 									"type": "boolean",
-									"description": "Allow HTTP redirect.",
 									"default": false
 								}
 							},
 							"required": [
-								"url",
-								"method"
+								"scriptId",
+								"func"
 							]
 						},
-						"notificationFuncSetting": {
+						"outputToastFuncSetting": {
 							"type": "object",
+							"description": "Show a toast message on the frontend.",
+							"properties": {
+								"toastValueVar": {
+									"type": "string",
+									"description": "Toast message content expression, must call _read_informat_expression_doc first to read expression documentation"
+								},
+								"toastValue": {
+									"type": "string"
+								}
+							}
+						},
+						"outputNotificationFuncSetting": {
+							"type": "object",
+							"description": "Show a notification popup with title on the frontend.",
 							"properties": {
 								"titleVar": {
 									"type": "string"
 								},
-								"accountVar": {
-									"type": "string",
-									"description": "accountId expression ${record.assignee.id}"
+								"messageVar": {
+									"type": "string"
 								},
-								"contentVar": {
+								"title": {
+									"type": "string"
+								},
+								"message": {
 									"type": "string"
 								},
 								"type": {
 									"type": "string",
-									"description": "Notification type. Only one of the following values can be used, and the corresponding setting must be provided based on the type:\nopenurl (open a link, urlSetting must also be provided),\nopenrecord (open a form record, recordSetting must also be provided),\nopenbpmntask (open a BPMN task, bpmnTaskSetting must also be provided),\ninvokeautomatic (invoke automation, automaticSetting must also be provided)"
+									"description": "success, warning, info, error",
+									"default": "success"
 								},
-								"urlSetting": {
-							      "type": "object",
-							      "additionalProperties": false,
-								  "description": "url config，only valid when type=openurl",
-							      "properties": {
-							        "urlVar": {
-							          "type": "string",
-							          "description": "URL expression"
-							        },
-							        "isAppURL": {
-							          "type": "boolean",
-							          "default": false
-							        }
-							      },
-							      "required": ["urlVar"]
-							    },
-								"recordSetting": {
-							      "type": "object",
-							      "additionalProperties": false,
-								  "description": "open record setting，only valid when type=openrecord",
-							      "properties": {
-							        "recordIdVar": {
-							          "type": "string"
-							        },
-							        "moduleId": {
-							          "type": "string"
-							        }
-							      },
-							      "required": ["recordIdVar", "moduleId"]
-							    },
-								"bpmnTaskSetting": {
-							      "type": "object",
-								  "description": "open bpmn task，only valid when type=openbpmntask",
-							      "additionalProperties": false,
-							      "properties": {
-							        "taskIdVar": {
-							          "type": "string"
-							        },
-							        "moduleId": {
-							          "type": "string"
-							        }
-							      },
-							      "required": ["taskIdVar", "moduleId"]
-							    },
-								"automaticSetting": {
-							      "type": "object",
-								  "description": "call automatic，only valid when type=invokeautomatic",
-							      "additionalProperties": false,
-							      "properties": {
-							        "automaticId": {
-							          "type": "string"
-							        },
-							        "args": {
-							          "type": "array",
-							          "items": {
-							            "type": "object",
-							            "properties": {
-							              "valueVar": {
-							                "type": "string"
-							              }
-							            },
-							            "required": ["valueVar"],
-							            "additionalProperties": false
-							          }
-							        }
-							      },
-							      "required": ["automaticId"]
-							    }
+								"position": {
+									"type": "string",
+									"default": "top-right"
+								},
+								"durationVar": {
+									"type": "string"
+								}
+							}
+						},
+						"outputRecordInfoFuncSetting": {
+							"type": "object",
+							"description": "Open record detail dialog.",
+							"properties": {
+								"recordInfoRecordIdVar": {
+									"type": "string"
+								},
+								"recordInfoModuleKeyVar": {
+									"type": "string"
+								},
+								"recordInfoDialogTitleVar": {
+									"type": "string"
+								},
+								"recordInfoDialogWidthVar": {
+									"type": "string"
+								},
+								"recordInfoDialogTopVar": {
+									"type": "string"
+								},
+								"recordInfoRecordId": {
+									"type": "string"
+								},
+								"recordInfoTableId": {
+									"type": "string"
+								},
+								"recordInfoFormSaveMode": {
+									"type": "string"
+								},
+								"recordInfoDialogModal": {
+									"type": "boolean"
+								},
+								"recordInfoHideFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"recordInfoReadonlyFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"outputRecordCreateFuncSetting": {
+							"type": "object",
+							"description": "Open create record form dialog.",
+							"properties": {
+								"recordCreateTableId": {
+									"type": "string"
+								},
+								"recordCreateButtonTextVar": {
+									"type": "string"
+								},
+								"recordCreateTitleVar": {
+									"type": "string"
+								},
+								"recordCreateRecordVar": {
+									"type": "string"
+								},
+								"recordCreateModuleKeyVar": {
+									"type": "string"
+								},
+								"recordCreateDialogTitleVar": {
+									"type": "string"
+								},
+								"recordCreateDialogWidthVar": {
+									"type": "string"
+								},
+								"recordCreateDialogTopVar": {
+									"type": "string"
+								},
+								"recordCreateFieldMappingList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/FieldMappingItem"
+									}
+								},
+								"recordCreateHideFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"recordCreateReadonlyFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"recordCreateSubmitType": {
+									"type": "string",
+									"default": "Create"
+								},
+								"recordCreateDialogModal": {
+									"type": "boolean"
+								},
+								"recordCreateSubmitBeforeAutomaticId": {
+									"type": "string"
+								},
+								"recordCreateSubmitBeforeAutomaticVarList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/CallAutomaticFuncArg"
+									}
+								}
 							},
 							"required": [
-								"titleVar",
-								"accountVar",
-								"contentVar",
+								"recordCreateTableId"
+							]
+						},
+						"outputRecordFormRefreshFuncSetting": {
+							"type": "object",
+							"description": "Refresh record form data.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"recordIdVar": {
+									"type": "string"
+								},
+								"recordId": {
+									"type": "string"
+								}
+							}
+						},
+						"outputRecordSelectFuncSetting": {
+							"type": "object",
+							"description": "Open record selection dialog.",
+							"properties": {
+								"searchTableId": {
+									"type": "string"
+								},
+								"selectionMode": {
+									"type": "string",
+									"default": "radio"
+								},
+								"searchDialogHeightVar": {
+									"type": "string"
+								},
+								"searchDialogTitleVar": {
+									"type": "string"
+								},
+								"searchDialogTopVar": {
+									"type": "string"
+								},
+								"searchDialogStyleWidth": {
+									"type": "integer",
+									"default": 700
+								},
+								"cellEditMode": {
+									"type": "string",
+									"default": "click"
+								},
+								"returnMode": {
+									"type": "string",
+									"default": "selection"
+								},
+								"selectionStrictly": {
+									"type": "boolean"
+								},
+								"searchSetting": {
+									"type": "object",
+									"description": "Table search configuration",
+									"properties": {
+										"searchChildrenFieldId": {
+											"type": "string",
+											"description": "Tree structure children field ID"
+										},
+										"searchTableIndex": {
+											"type": "boolean",
+											"description": "Show row index column",
+											"default": false
+										},
+										"searchTableBorderStyle": {
+											"type": "string",
+											"description": "Table border style: full, none",
+											"default": "full"
+										},
+										"searchTableLineHeight": {
+											"type": "string",
+											"description": "Row height: min, default, max",
+											"default": "min"
+										},
+										"searchTableStripe": {
+											"type": "boolean",
+											"description": "Enable stripe rows",
+											"default": false
+										},
+										"searchTableHideHeader": {
+											"type": "boolean",
+											"description": "Hide table header",
+											"default": true
+										},
+										"searchChildrenFullPath": {
+											"type": "boolean",
+											"description": "Show full path for tree structure",
+											"default": false
+										},
+										"searchChildrenDefaultLevel": {
+											"type": "integer",
+											"description": "Default tree expand level",
+											"default": 1
+										},
+										"searchColumnList": {
+											"type": "array",
+											"description": "Search list column configuration",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"description": "Field ID"
+													},
+													"name": {
+														"type": "string",
+														"description": "Field name"
+													},
+													"icon": {
+														"type": "string",
+														"description": "Field icon"
+													},
+													"type": {
+														"type": "string",
+														"description": "Column type, fixed to field",
+														"default": "field"
+													},
+													"edit": {
+														"type": "boolean",
+														"description": "Whether editable",
+														"default": false
+													},
+													"width": {
+														"type": "string",
+														"description": "Column width"
+													}
+												},
+												"required": [
+													"id",
+													"name",
+													"type"
+												]
+											}
+										},
+										"searchFilterId": {
+											"type": "string",
+											"description": "Filter condition ID"
+										},
+										"searchOrderByList": {
+											"type": "array",
+											"description": "Sort order list",
+											"items": {
+												"type": "object",
+												"properties": {
+													"fieldId": {
+														"type": "string",
+														"description": "Sort field ID"
+													},
+													"type": {
+														"type": "string",
+														"description": "Sort direction: asc, desc"
+													}
+												}
+											}
+										},
+										"searchListCount": {
+											"type": "integer",
+											"description": "Number of records to display",
+											"default": 50
+										},
+										"searchSelectionStrictly": {
+											"type": "boolean",
+											"description": "Disable auto parent-child selection"
+										},
+										"searchFilterVarList": {
+											"type": "array",
+											"description": "Filter condition variable list",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"description": "Variable ID"
+													},
+													"valueExpression": {
+														"type": "string",
+														"description": "Value expression"
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"required": [
+								"searchTableId"
+							]
+						},
+						"outputCloseRecordInfoFuncSetting": {
+							"type": "object",
+							"description": "Close current record detail dialog."
+						},
+						"outputSetFormValueFuncSetting": {
+							"type": "object",
+							"description": "Set form field values on the frontend.",
+							"properties": {
+								"setFormValueTableIdVar": {
+									"type": "string"
+								},
+								"setFormValueTableId": {
+									"type": "string"
+								},
+								"setFormValueFieldMappingList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/FieldMappingItem"
+									}
+								}
+							}
+						},
+						"outputFormValidateFuncSetting": {
+							"type": "object",
+							"description": "Trigger form validation."
+						},
+						"outputFormDesignerFuncSetting": {
+							"type": "object",
+							"description": "Open form designer dialog.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"formId": {
+									"type": "string"
+								},
+								"dialogTitleVar": {
+									"type": "string"
+								},
+								"dialogTopVar": {
+									"type": "string"
+								},
+								"dialogWidthVar": {
+									"type": "string"
+								},
+								"dialogHeightVar": {
+									"type": "string"
+								},
+								"isModal": {
+									"type": "boolean"
+								},
+								"formPropVar": {
+									"type": "string"
+								},
+								"formDataVar": {
+									"type": "string"
+								},
+								"submitButtonTextVar": {
+									"type": "string"
+								},
+								"showSubmitButton": {
+									"type": "boolean",
+									"default": true
+								}
+							},
+							"required": [
+								"moduleId",
+								"formId"
+							]
+						},
+						"outputTableRefreshFuncSetting": {
+							"type": "object",
+							"description": "Refresh table view data.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"resetPage": {
+									"type": "boolean"
+								},
+								"isCurrentModule": {
+									"type": "boolean",
+									"default": false
+								}
+							}
+						},
+						"outputTableEventFuncSetting": {
+							"type": "object",
+							"description": "Trigger a table data event.",
+							"properties": {
+								"recordIdVar": {
+									"type": "string"
+								},
+								"tableId": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								},
+								"recordId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"tableId",
 								"type"
 							]
 						},
-						"scriptFuncSetting": {
+						"outputRefreshTableViewColumnFuncSetting": {
 							"type": "object",
+							"description": "Refresh table view column definitions.",
 							"properties": {
-								"code": {
-									"type": "string",
-									"description": "Script code. Do not use 'return' at the end of the script. If you need to set a return value for the entire automation, use automatic.setReturnValue. Before writing scripts, refer to the Informat script documentation. You can use the tool `_read_office_file` to retrieve the documentation."
-								}
-							},
-							"required": [
-								"code"
-							]
-						},
-						"insertRecordFuncSetting": {
-							"type": "object",
-							"properties": {
-								"tableId": {
+								"moduleId": {
 									"type": "string"
-								},
-								"fieldMappingList": {
-									"items": {
-									    "$ref": "#/definitions/FieldMappingItem"
-									}
 								}
 							},
 							"required": [
-								"tableId","fieldMappingList"
+								"moduleId"
 							]
 						},
-						"updateRecordFuncSetting": {
+						"outputSetTableViewFilterFuncSetting": {
 							"type": "object",
+							"description": "Set table view filter.",
 							"properties": {
-								"tableId": {
-									"type": "string"
-								},
-								"filter": {
-									"$ref": "#/definitions/FilterCondition"
-								},
-								"fieldMappingList": {
-									"items": {
-									    "$ref": "#/definitions/FieldMappingItem"
-									}
-								}
-							},
-							"required": [
-								"tableId","FieldMappingField"
-							]
-						},
-						"deleteRecordFuncSetting": {
-							"type": "object",
-							"properties": {
-								"tableId": {
+								"moduleId": {
 									"type": "string"
 								},
 								"filter": {
@@ -485,41 +1091,41 @@
 								}
 							},
 							"required": [
-								"tableId","filter"
+								"moduleId"
 							]
 						},
-						"queryRecordListFuncSetting": {
+						"outputSetTableViewFilterConditionFuncSetting": {
 							"type": "object",
+							"description": "Set table view filter conditions (list mode).",
 							"properties": {
-								"countVar": {
-									"type": "string",
-									"default": "1000",
-									"description": "Page size (string expression). For example: \"100\" or ${pageSize}."
-								},
-								"indexVar": {
-									"type": "string",
-									"default": "1",
-									"description": "Page index (string expression). For example: \"1\" or ${pageIndex}."
-								},
-								"tableId": {
+								"moduleId": {
 									"type": "string"
 								},
-								"filter": {
-									"$ref": "#/definitions/FilterCondition"
+								"filterConditionList": {
+									"type": "array"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetTableViewOrderByFuncSetting": {
+							"type": "object",
+							"description": "Set table view sort order.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
 								},
 								"orderByList": {
 									"type": "array",
-									"description": "Sorting rule list.",
 									"items": {
 										"type": "object",
 										"properties": {
 											"field": {
-												"type": "string",
-												"description": "Sorting field ID."
+												"type": "string"
 											},
 											"type": {
-												"type": "string",
-												"description": "Sorting order. asc = ascending, desc = descending."
+												"type": "string"
 											}
 										},
 										"required": [
@@ -527,340 +1133,1034 @@
 											"type"
 										]
 									}
-								},
-								"fieldList": {
-									"type": "array",
-									"description": "ist of fields to query (used in non-aggregation queries). Empty means query all fields.",
-									"items": {
-										"type": "string"
-									}
-								},
-								"aggregation": {
-									"type": "boolean",
-									"default": false,
-									"description": "Whether to execute an aggregation query."
-								},
-								"aggregationQueryList": {
-									"type": "array",
-									"description": "Aggregation query definition list (required when aggregation=true).",
-									"items": {
-										"type": "object",
-										"description": "Single aggregation query definition.",
-										"properties": {
-											"func": {
-												"type": "string",
-												"description": "Aggregation function (required). Only one of the following values can be used:\ncount (count; fieldId can be omitted to represent count(*); distinct is meaningful),\navg (average; fieldId must be provided; distinct is meaningless and should not be set to true),\nsum (sum; fieldId must be provided; distinct is meaningless),\nmax (maximum; fieldId must be provided; distinct is meaningless),\nmin (minimum; fieldId must be provided; distinct is meaningless)"
-											},
-											"fieldId": {
-												"type": "string",
-												"description": "Aggregation field ID. For count, it can be empty to represent count(*)."
-											},
-											"distinct": {
-												"type": "boolean",
-												"default": false,
-												"description": "Whether to apply DISTINCT (only meaningful for count)."
-											}
-										},
-										"required": [
-											"func"
-										]
-									},
-									"minItems": 1
-								},
-								"groupByFieldList": {
-									"type": "array",
-									"description": "Group-by field list (used when aggregation=true).",
-									"items": {
-										"type": "string"
-									}
-								},
-								"aggregationSplitMultiValue": {
-									"type": "boolean",
-									"default": false,
-									"description": "Whether to split multi-value fields during aggregation."
-								},
-								"returnOptionName": {
-									"type": "boolean",
-									"default": false,
-									"description": "Whether to return the display name of option fields."
 								}
 							},
 							"required": [
-								"tableId"
+								"moduleId"
 							]
 						},
-						"queryRecordListCountFuncSetting": {
+						"outputSetTableViewExpandFuncSetting": {
 							"type": "object",
+							"description": "Set table view expand/collapse state (tree tables).",
 							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"expand": {
+									"type": "boolean",
+									"default": true
+								},
+								"scope": {
+									"type": "string",
+									"default": "all"
+								},
+								"recordIdListVar": {
+									"type": "string"
+								},
+								"expandLevel": {
+									"type": "integer",
+									"default": 1
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetTableViewSelectionFuncSetting": {
+							"type": "object",
+							"description": "Set table view selected rows.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"recordIdListVar": {
+									"type": "string"
+								},
+								"mode": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetTableViewActiveRecordsFuncSetting": {
+							"type": "object",
+							"description": "Set table view active/highlighted records.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"recordIdListVar": {
+									"type": "string"
+								},
+								"mode": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetTableViewRootRecordIdFuncSetting": {
+							"type": "object",
+							"description": "Set table view root record ID (tree tables).",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"recordIdVar": {
+									"type": "string"
+								},
+								"recordId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetTableViewDataFuncSetting": {
+							"type": "object",
+							"description": "Set table view data directly.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"insertType": {
+									"type": "string",
+									"description": "append or replace",
+									"default": "append"
+								},
+								"listVar": {
+									"type": "string"
+								},
+								"updateFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetFormTableSelectionFuncSetting": {
+							"type": "object",
+							"description": "Set selection in a form sub-table.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"fieldId": {
+									"type": "string"
+								},
+								"mode": {
+									"type": "string",
+									"default": "replace"
+								},
+								"recordIdListVar": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId",
+								"fieldId"
+							]
+						},
+						"outputRefreshDashboardCardFuncSetting": {
+							"type": "object",
+							"description": "Refresh a dashboard card.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"cardIdVar": {
+									"type": "string"
+								},
+								"cardId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputSetDashboardFilterFuncSetting": {
+							"type": "object",
+							"description": "Set dashboard card filter.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"cardIdVar": {
+									"type": "string"
+								},
+								"filterVar": {
+									"type": "string"
+								},
+								"cardId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputDynamicTableFuncSetting": {
+							"type": "object",
+							"description": "Show an interactive dynamic table dialog.",
+							"properties": {
+								"dialogTitleVar": {
+									"type": "string"
+								},
+								"dialogWidthVar": {
+									"type": "string"
+								},
+								"dialogHeightVar": {
+									"type": "string"
+								},
+								"dialogTopVar": {
+									"type": "string"
+								},
+								"submitButtonTextVar": {
+									"type": "string",
+									"default": "OK"
+								},
+								"listVar": {
+									"type": "string"
+								},
 								"tableId": {
 									"type": "string"
 								},
-								"filter": {
-									"$ref": "#/definitions/FilterCondition"
+								"selectionMode": {
+									"type": "string",
+									"default": "checkbox"
+								},
+								"returnMode": {
+									"type": "string",
+									"default": "list"
+								},
+								"cellEditMode": {
+									"type": "string",
+									"default": "click"
+								},
+								"enableTableIndex": {
+									"type": "boolean",
+									"default": true
+								},
+								"enableTableStripe": {
+									"type": "boolean",
+									"default": true
+								},
+								"enableTableSort": {
+									"type": "boolean"
+								},
+								"dialogModal": {
+									"type": "boolean"
+								},
+								"tableBorderStyle": {
+									"type": "string",
+									"default": "full"
+								},
+								"tableFieldList": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											},
+											"type": {
+												"type": "string"
+											},
+											"width": {
+												"type": "string"
+											},
+											"editable": {
+												"type": "boolean",
+												"default": true
+											},
+											"hidden": {
+												"type": "boolean"
+											}
+										},
+										"required": [
+											"id",
+											"name",
+											"type"
+										]
+									}
+								}
+							},
+							"required": [
+								"tableFieldList"
+							]
+						},
+						"outputOpenUrlFuncSetting": {
+							"type": "object",
+							"description": "Open a URL in new window, current window, or iframe dialog.",
+							"properties": {
+								"urlVar": {
+									"type": "string"
+								},
+								"url": {
+									"type": "string"
+								},
+								"showType": {
+									"type": "string",
+									"description": "Frame, App, Self, Blank, FrameModule"
+								},
+								"frameTitleVar": {
+									"type": "string"
+								},
+								"frameWidthVar": {
+									"type": "string"
+								},
+								"frameHeightVar": {
+									"type": "string"
+								},
+								"frameTopVar": {
+									"type": "string"
+								},
+								"frameHideClose": {
+									"type": "boolean"
+								},
+								"frameIsBlock": {
+									"type": "boolean"
+								},
+								"frameCloseOnClickModal": {
+									"type": "boolean"
+								},
+								"frameCloseOnPressEscape": {
+									"type": "boolean"
+								}
+							}
+						},
+						"outputOpenWebsiteFuncSetting": {
+							"type": "object",
+							"description": "Open a website module page in a dialog.",
+							"properties": {
+								"type": {
+									"type": "string",
+									"default": "website"
+								},
+								"websiteId": {
+									"type": "string"
+								},
+								"pagePathVar": {
+									"type": "string"
+								},
+								"pagePath": {
+									"type": "string"
+								},
+								"frameTitleVar": {
+									"type": "string"
+								},
+								"frameWidthVar": {
+									"type": "string"
+								},
+								"frameHeightVar": {
+									"type": "string"
+								},
+								"frameTopVar": {
+									"type": "string"
+								},
+								"hideHeader": {
+									"type": "boolean"
+								},
+								"hideClose": {
+									"type": "boolean"
+								},
+								"isBlock": {
+									"type": "boolean",
+									"default": true
+								},
+								"frameModal": {
+									"type": "boolean"
+								}
+							},
+							"required": [
+								"websiteId"
+							]
+						},
+						"outputOpenSplitDrawerFuncSetting": {
+							"type": "object",
+							"description": "Open a drawer or dialog showing module/website/URL/template content.",
+							"properties": {
+								"showType": {
+									"type": "string",
+									"description": "drawer or dialog",
+									"default": "drawer"
+								},
+								"splitTitleVar": {
+									"type": "string"
+								},
+								"splitTitle": {
+									"type": "string"
+								},
+								"splitWithHeader": {
+									"type": "boolean",
+									"default": true
+								},
+								"splitShowClose": {
+									"type": "boolean",
+									"default": true
+								},
+								"splitModal": {
+									"type": "boolean",
+									"default": true
+								},
+								"splitSizeVar": {
+									"type": "string",
+									"default": "500px"
+								},
+								"splitDirection": {
+									"type": "string",
+									"description": "right, left, top, bottom",
+									"default": "right"
+								},
+								"moduleId": {
+									"type": "string"
+								},
+								"websiteId": {
+									"type": "string"
+								},
+								"websitePath": {
+									"type": "string"
+								},
+								"externalUrlVar": {
+									"type": "string"
+								},
+								"pageDesignerId": {
+									"type": "string"
+								},
+								"pageDesignerPageId": {
+									"type": "string"
+								}
+							}
+						},
+						"outputExternalFuncSetting": {
+							"type": "object",
+							"description": "Display an external URL page in module area.",
+							"properties": {
+								"externalURL": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"externalURL"
+							]
+						},
+						"outputSetExternalUrlFuncSetting": {
+							"type": "object",
+							"description": "Set external page URL dynamically.",
+							"properties": {
+								"moduleId": {
+									"type": "string"
+								},
+								"urlVar": {
+									"type": "string"
+								},
+								"url": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"moduleId"
+							]
+						},
+						"outputCloseModuleVisitHistoryFuncSetting": {
+							"type": "object",
+							"description": "Close module visit history.",
+							"properties": {
+								"closeType": {
+									"type": "string",
+									"description": "current or all"
+								}
+							}
+						},
+						"outputPrintRecordFuncSetting": {
+							"type": "object",
+							"description": "Print a record as a form.",
+							"properties": {
+								"recordIdVar": {
+									"type": "string"
+								},
+								"titleVar": {
+									"type": "string"
+								},
+								"tableId": {
+									"type": "string"
+								},
+								"recordId": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"hideFieldList": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
 								}
 							},
 							"required": [
 								"tableId"
 							]
 						},
-						"outputConfirmFuncSetting": {
-						  "type": "object",
-						  "description": "Confirmation dialog configuration. Used to pause the automation flow and wait for user confirmation.",
-						  "additionalProperties": false,
-						  "properties": {
-							"confirmDialogTitleVar": {
-						      "type": "string",
-						      "description": "Dialog title expression."
-						    },
-						    "confirmTitleVar": {
-						      "type": "string",
-						      "description": "Confirmation message expression."
-						    },
-						    "confirmButtonTextVar": {
-						      "type": "string",
-						      "description": "Confirm button text expression."
-						    },
-						    "cancelButtonTextVar": {
-						      "type": "string",
-						      "description": "Cancel button text expression."
-						    },
-						    "confirmDialogTopVar": {
-						      "type": "string",
-						      "description": "Dialog top position expression."
-						    },
-						    "confirmDialogWidthVar": {
-						      "type": "string",
-						      "description": "Dialog width expression."
-						    },
-						    "confirmDialogHeightVar": {
-						      "type": "string",
-						      "description": "Dialog height expression."
-						    },
-						    "confirmTitleHorizontalAlign": {
-						      "type": "string",
-						      "description": "Text horizontal alignment. Only one of the following values can be used: left (align left), center (align center), right (align right)."
-						    },
-						    "confirmTitleVerticalAlign": {
-						      "type": "string",
-						      "description": "Text vertical alignment. Only one of the following values can be used: top (top), middle (middle), bottom (bottom)."
-						    }
-						  }
+						"outputPrintRecordListFuncSetting": {
+							"type": "object",
+							"description": "Print multiple records as a table.",
+							"properties": {
+								"recordListVar": {
+									"type": "string"
+								},
+								"titleVar": {
+									"type": "string"
+								},
+								"tableId": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"tableId"
+							]
 						},
-						"outputUploadFuncSetting": {
-						  "type": "object",
-						  "description": "File upload interaction node",
-						  "additionalProperties": false,
-						  "properties": {
-						    "acceptVar": {
-						      "type": "string",
-						      "description": "Allowed file type expression. Example: .pdf,.doc"
-						    },
-						    "titleVar": {
-						      "type": "string",
-						      "description": "Upload dialog title expression."
-						    },
-						    "dialogTopVar": {
-						      "type": "string",
-						      "description": "Dialog top position expression."
-						    },
-						    "uploadType": {
-						      "type": "string",
-						      "description": "File storage mode. File = store in shared storage. Base64 = return Base64 encoded content.",
-						      "default": "File"
-						    },
-						    "maxSize": {
-						      "type": "integer",
-						      "description": "Maximum file size (MB). 0 means no limit.",
-						      "minimum": 1
-						    },
-						    "multiple": {
-						      "type": "boolean",
-						      "description": "Allow multiple file uploads.",
-						      "default": false
-						    },
-						    "limit": {
-						      "type": "integer",
-						      "description": "Maximum number of files allowed.",
-						      "minimum": 1,
-						      "default": 10
-						    },
-						    "remark": {
-						      "type": "string",
-						      "description": "Upload instruction text."
-						    }
-						  }
+						"outputPrintByPageDesignerFuncSetting": {
+							"type": "object",
+							"description": "Print using a page designer template.",
+							"properties": {
+								"printTableIdVar": {
+									"type": "string"
+								},
+								"printPageIdVar": {
+									"type": "string"
+								},
+								"printRecordIdVar": {
+									"type": "string"
+								},
+								"printTableId": {
+									"type": "string"
+								},
+								"printPageId": {
+									"type": "string"
+								},
+								"printRecordId": {
+									"type": "string"
+								}
+							}
 						},
-						"outputDynamicFormFuncSetting": {
-						  "type": "object",
-						  "description": "Dynamic form configuration. ",
-						  "properties": {
-						    "dynamicFormTitleVar": {
-						      "type": "string"
-						    },
-						    "dynamicFormHeightVar": {
-						      "type": "string"
-						    },
-						    "dynamicFormStyle": {
-						      "type": "string"
-						    },
-						    "dynamicFormFieldStyle": {
-						      "type": "string"
-						    },
-						    "dynamicFormSubmitButtonTextVar": {
-						      "type": "string",
-						      "default": "Submit"
-						    },
-						    "dynamicFormTopVar": {
-						      "type": "string"
-						    },
-						    "dynamicFormTitle": {
-						      "type": "string"
-						    },
-						    "dynamicFormStyleWidth": {
-						      "type": "integer",
-						      "default": 700
-						    },
-						    "dynamicFormStyleWidthUnit": {
-						      "type": "string"
-						    },
-						    "dynamicFormHeight": {
-						      "type": "string"
-						    },
-						    "dynamicFormFieldList": {
-						      "type": "array",
-						      "description": "List of form field definitions.",
-						      "items": {
-						        "type": "object",
-						        "description": "Field definition.",
-						        "properties": {
-						          "id": {
-						            "type": "string",
-						            "description": "Field ID. Must be lowercase letters, 10–13 characters, randomly generated and unique."
-						          },
-						          "name": {
-						            "type": "string",
-						            "description": "Field display name."
-						          },
-								  "key": {
-  						            "type": "string",
-  						            "description": "Field identifier. CamelCase format, letters only, randomly generated and unique."
-  						          },
-						          "type": {
-						            "type": "string",
-									"description": "Dynamic form field type. Only one of the following values can be used:\nSingleText (single-line text), MultiText (multi-line text), RichText (rich text),\nInteger (integer), Double (decimal), Date (date), ListSelect (dropdown select),\nAttachment (attachment), Checkbox (checkbox), User (user), Department (department),\nCoordinate (coordinate), RelationRecord (relation record), Children (tree structure), ID (business ID)"
-						          }
-						        },
-						        "required": ["id", "name", "key", "type"],
-						        "additionalProperties": false
-						      }
-						    },
-						    "dynamicFormFieldMappingList": {
-						      "type": "array",
-						      "description": "Default field values. Optional.",
-						      "items": {
-						        "type": "object",
-						        "properties": {
-						          "fieldId": {
-						            "type": "string",
-						            "description": "Target field ID. Must exist in dynamicFormFieldList."
-						          },
-						          "valueVar": {
-						            "type": "string",
-						            "description": "Value expression."
-						          }
-						        },
-						        "required": ["fieldId","valueVar"],
-						        "additionalProperties": false
-						      }
-						    },
-						    "dynamicFormSubmitButtonText": {
-						      "type": "string",
-						      "description": "Submit button text."
-						    },
-						    "tableId": {
-						      "type": "string",
-						      "description": "Associated table ID."
-						    },
-						    "toolbarButtonList": {
-						      "type": "array",
-						      "description": "Toolbar button list.",
-						      "items": {
-						        "type": "object",
-						        "properties": {
-						          "id": {
-						            "type": "string",
-						            "description": "Button ID."
-						          },
-						          "name": {
-						            "type": "string",
-						            "description": "Button name."
-						          }
-						        },
-						        "required": ["id", "name"],
-						        "additionalProperties": false
-						      }
-						    },
-						    "dynamicFormSubmitBeforeAutomaticId": {
-						      "type": "string",
-						      "description": "Automation ID to execute before form submission."
-						    },
-						    "dynamicFormSubmitBeforeAutomaticVarList": {
-						      "type": "array",
-						      "description": "Parameter list for the pre-submit automation.",
-						      "items": {
-						        "type": "object",
-						        "properties": {
-						          "valueVar": {
-						            "type": "string",
-						            "description": "Parameter expression."
-						          }
-						        },
-						        "required": ["valueVar"],
-						        "additionalProperties": false
-						      }
-						    },
-						    "dynamicFormModal": {
-						      "type": "boolean",
-						      "description": "Whether to enable modal mode.",
-						      "default": false
-						    },
-						    "submitDisableExpression": {
-						      "type": "string"
-						    },
-						    "dynamicFormTop": {
-						      "type": "string"
-						    },
-						    "dynamicFormEnableFieldValidate": {
-						      "type": "boolean",
-							  "description": "Whether to enable field validation. Currently fixed to false; do not set it to true.",
-						      "default": false
-						    },
-						    "dynamicFormCloseAutomaticId": {
-						      "type": "string"
-						    },
-						    "dynamicFormCloseAutomaticVarList": {
-						      "type": "array",
-						      "items": {
-						        "type": "object",
-						        "properties": {
-						          "valueVar": {
-						            "type": "string"
-						          }
-						        },
-						        "required": ["valueVar"],
-						        "additionalProperties": false
-						      }
-						    }
-						  },
-						  "required": ["tableId", "dynamicFormFieldList"],
-						  "additionalProperties": false
+						"outputPageDesignerFuncSetting": {
+							"type": "object",
+							"description": "Open a page designer print template in a dialog.",
+							"properties": {
+								"pageDesignerModuleId": {
+									"type": "string"
+								},
+								"pageId": {
+									"type": "string"
+								},
+								"listVar": {
+									"type": "string"
+								},
+								"batch": {
+									"type": "boolean"
+								},
+								"dialogTitleVar": {
+									"type": "string"
+								},
+								"dialogWidthVar": {
+									"type": "string"
+								},
+								"dialogHeightVar": {
+									"type": "string"
+								},
+								"dialogTopVar": {
+									"type": "string"
+								},
+								"enablePrint": {
+									"type": "boolean"
+								},
+								"enableSaveImage": {
+									"type": "boolean"
+								},
+								"enableFullscreen": {
+									"type": "boolean"
+								},
+								"varList": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"name": {
+												"type": "string"
+											},
+											"valueVar": {
+												"type": "string"
+											}
+										},
+										"required": [
+											"name",
+											"valueVar"
+										]
+									}
+								}
+							},
+							"required": [
+								"pageDesignerModuleId",
+								"pageId"
+							]
+						},
+						"outputDownloadFileFuncSetting": {
+							"type": "object",
+							"description": "Download a file.",
+							"properties": {
+								"fileNameVar": {
+									"type": "string"
+								},
+								"fileContentVar": {
+									"type": "string"
+								},
+								"filePathVar": {
+									"type": "string"
+								},
+								"fileName": {
+									"type": "string"
+								},
+								"fileType": {
+									"type": "string",
+									"description": "Raw, Base64, File, Storage",
+									"default": "Raw"
+								},
+								"fileToken": {
+									"type": "string"
+								}
+							}
+						},
+						"outputDownloadExcelFuncSetting": {
+							"type": "object",
+							"description": "Download data as an Excel file.",
+							"properties": {
+								"excelNameVar": {
+									"type": "string"
+								},
+								"excelName": {
+									"type": "string"
+								},
+								"excelSheetList": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"excelSheetNameVar": {
+												"type": "string"
+											},
+											"excelHeaderVar": {
+												"type": "string"
+											},
+											"excelDatasourceValueVar": {
+												"type": "string"
+											},
+											"excelDatasourceType": {
+												"type": "string",
+												"default": "List"
+											}
+										}
+									}
+								}
+							}
+						},
+						"outputUploadExcelFuncSetting": {
+							"type": "object",
+							"description": "Upload and parse an Excel file.",
+							"properties": {
+								"titleVar": {
+									"type": "string"
+								},
+								"dialogTopVar": {
+									"type": "string"
+								},
+								"excelUploadFormat": {
+									"type": "string",
+									"default": "Array"
+								},
+								"remark": {
+									"type": "string"
+								}
+							}
+						},
+						"outputOpenFileFuncSetting": {
+							"type": "object",
+							"description": "Open file preview dialog.",
+							"properties": {
+								"formTitleVar": {
+									"type": "string"
+								},
+								"formTitle": {
+									"type": "string"
+								},
+								"fileListType": {
+									"type": "string",
+									"default": "default"
+								},
+								"fileListVar": {
+									"type": "string"
+								}
+							}
+						},
+						"outputCopyClipboardFuncSetting": {
+							"type": "object",
+							"description": "Copy content to system clipboard.",
+							"properties": {
+								"contentVar": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								}
+							}
+						},
+						"outputInjectScriptFuncSetting": {
+							"type": "object",
+							"description": "Inject and execute JavaScript in the current page.",
+							"properties": {
+								"injectScriptContent": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"injectScriptContent"
+							]
+						},
+						"outputExecuteScriptFuncSetting": {
+							"type": "object",
+							"description": "Execute frontend JavaScript with variables.",
+							"properties": {
+								"code": {
+									"type": "string"
+								},
+								"varList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Var"
+									}
+								}
+							},
+							"required": [
+								"code"
+							]
+						},
+						"outputPlayAudioFuncSetting": {
+							"type": "object",
+							"description": "Play audio on the frontend.",
+							"properties": {
+								"playAudioURLVar": {
+									"type": "string"
+								},
+								"playAudioURL": {
+									"type": "string"
+								}
+							}
+						},
+						"outputPlayImageFuncSetting": {
+							"type": "object",
+							"description": "View an image in a popup.",
+							"properties": {
+								"playImageURLVar": {
+									"type": "string"
+								},
+								"playImageNameVar": {
+									"type": "string"
+								},
+								"playImageURL": {
+									"type": "string"
+								},
+								"playImageName": {
+									"type": "string"
+								}
+							}
+						},
+						"outputQRCodeScannerFuncSetting": {
+							"type": "object",
+							"description": "Open QR code scanner (mobile)."
+						},
+						"outputGetAppClipboardFuncSetting": {
+							"type": "object",
+							"description": "Get app internal clipboard data.",
+							"properties": {
+								"typeVar": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								},
+								"getAndClean": {
+									"type": "boolean",
+									"default": true
+								}
+							}
+						},
+						"outputSetAppClipboardFuncSetting": {
+							"type": "object",
+							"description": "Set app internal clipboard data.",
+							"properties": {
+								"typeVar": {
+									"type": "string"
+								},
+								"dataVar": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								}
+							}
+						},
+						"outputRichtextFuncSetting": {
+							"type": "object",
+							"description": "Show rich text (HTML) content in a dialog.",
+							"properties": {
+								"dataVar": {
+									"type": "string"
+								},
+								"dialogTitleVar": {
+									"type": "string"
+								},
+								"dialogTitle": {
+									"type": "string"
+								},
+								"dialogWidth": {
+									"type": "string",
+									"default": "700px"
+								},
+								"dialogHeight": {
+									"type": "string"
+								},
+								"dialogTop": {
+									"type": "string"
+								},
+								"dialogModal": {
+									"type": "boolean"
+								},
+								"enablePrint": {
+									"type": "boolean",
+									"default": false
+								},
+								"enableFullscreen": {
+									"type": "boolean",
+									"default": false
+								},
+								"content": {
+									"type": "string"
+								}
+							}
+						},
+						"outputStringFuncSetting": {
+							"type": "object",
+							"description": "Show formatted text in a dialog.",
+							"properties": {
+								"stringValueVar": {
+									"type": "string"
+								},
+								"stringDialogTitleVar": {
+									"type": "string"
+								},
+								"stringDialogWidthVar": {
+									"type": "string"
+								},
+								"stringDialogHeightVar": {
+									"type": "string"
+								},
+								"stringDialogTopVar": {
+									"type": "string"
+								},
+								"stringValue": {
+									"type": "string"
+								},
+								"stringDialogTitle": {
+									"type": "string"
+								},
+								"stringValueFormat": {
+									"type": "string"
+								},
+								"enablePrint": {
+									"type": "boolean"
+								},
+								"enableFullscreen": {
+									"type": "boolean"
+								},
+								"dialogModal": {
+									"type": "boolean"
+								},
+								"dialogCenter": {
+									"type": "boolean"
+								}
+							}
+						},
+						"outputTextindexSearchFuncSetting": {
+							"type": "object",
+							"description": "Open fulltext search interface.",
+							"properties": {
+								"textindexSearchId": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"textindexSearchId"
+							]
+						},
+						"outputWebsitePageFireEventFuncSetting": {
+							"type": "object",
+							"description": "Fire a custom event to an embedded website page.",
+							"properties": {
+								"contentVar": {
+									"type": "string"
+								},
+								"typeVar": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								}
+							}
+						},
+						"outputBpmnEventFuncSetting": {
+							"type": "object",
+							"description": "Trigger a BPMN UI event on the frontend.",
+							"properties": {
+								"bpmnModuleId": {
+									"type": "string"
+								},
+								"taskIdVar": {
+									"type": "string"
+								},
+								"instanceIdVar": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								},
+								"taskChangeType": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"bpmnModuleId",
+								"type"
+							]
+						},
+						"outputBpmnProcessFuncSetting": {
+							"type": "object",
+							"description": "Open BPMN process start form dialog.",
+							"properties": {
+								"bpmnModuleId": {
+									"type": "string"
+								},
+								"bpmnProcessDefineId": {
+									"type": "string"
+								},
+								"bpmnProcessDefineIdVar": {
+									"type": "string"
+								},
+								"bpmnProcessFormType": {
+									"type": "string",
+									"default": "Form"
+								},
+								"bpmnProcessIdEnable": {
+									"type": "boolean"
+								},
+								"bpmnProcessStartFormTableId": {
+									"type": "string"
+								},
+								"bpmnProcessStartFormKey": {
+									"type": "string"
+								},
+								"bpmnProcessFormEnable": {
+									"type": "boolean"
+								},
+								"bpmnProcessFieldMappingList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/FieldMappingItem"
+									}
+								},
+								"bpmnProcessVarList": {
+									"type": "array",
+									"items": {
+										"$ref": "#/definitions/Var"
+									}
+								}
+							},
+							"required": [
+								"bpmnModuleId"
+							]
+						},
+						"outputBpmnTaskInfoFuncSetting": {
+							"type": "object",
+							"description": "Open BPMN task detail dialog.",
+							"properties": {
+								"bpmnModuleId": {
+									"type": "string"
+								},
+								"bpmnTaskIdVar": {
+									"type": "string"
+								},
+								"bpmnTaskId": {
+									"type": "string"
+								},
+								"dialogModal": {
+									"type": "boolean",
+									"default": true
+								},
+								"openInNewWindow": {
+									"type": "boolean",
+									"default": true
+								}
+							},
+							"required": [
+								"bpmnModuleId"
+							]
+						},
+						"outputBpmnInstanceInfoFuncSetting": {
+							"type": "object",
+							"description": "Open BPMN process instance detail dialog.",
+							"properties": {
+								"bpmnModuleId": {
+									"type": "string"
+								},
+								"bpmnInstanceIdVar": {
+									"type": "string"
+								},
+								"bpmnInstanceId": {
+									"type": "string"
+								},
+								"dialogModal": {
+									"type": "boolean",
+									"default": true
+								},
+								"openInNewWindow": {
+									"type": "boolean",
+									"default": true
+								}
+							},
+							"required": [
+								"bpmnModuleId"
+							]
 						}
 					},
 					"required": [
 						"name",
 						"type"
 					],
-					"description": "Automation step node.\n\n[type → Required setting and retValues rules (mandatory; missing any is a serious error)]\n\n  Log               → logFuncSetting must be provided\n  Sleep             → sleepFuncSetting must be provided\n  Abort             → abortFuncSetting must be provided\n  Script            → scriptFuncSetting must be provided\n  If                → ifFuncSetting and children must be provided (children must contain exactly two child nodes:\n                       the first type=If.true, the second type=If.false; the actual execution steps are written inside their children)\n  If.true           → no additional setting required; exists as a child node of If\n  If.false          → no additional setting required; exists as a child node of If\n  ForEach           → forEachFuncSetting and retValues must be provided (fixed 2 items:\n                       item1: {id:'object', name:'List item'}; item2: {id:'idx', name:'Index'})\n  Http              → httpFuncSetting and retValues must be provided (fixed 3 items:\n                       {id:'response',name:'Response value'}, {id:'code',name:'Response code'}, {id:'header',name:'Response header'})\n  Notification      → notificationFuncSetting must be provided\n  InsertRecord      → insertRecordFuncSetting and retValues must be provided (fixed 1 item: {id:'record',name:'Inserted record'})\n  UpdateRecord      → updateRecordFuncSetting and retValues must be provided (fixed 2 items:\n                       {id:'count',name:'Updated record count'}, {id:'recordIdList',name:'Updated record ID list'})\n  DeleteRecord      → deleteRecordFuncSetting must be provided\n  QueryRecordList   → queryRecordListFuncSetting and retValues must be provided (fixed 1 item: {id:'list',name:'Record list'})\n                       When referenced in subsequent steps use ${recordList} instead of ${list}, and use ${recordList.size()} instead of .length for the count\n  QueryRecordListCount → queryRecordListCountFuncSetting and retValues must be provided (fixed 1 item: {id:'result',name:'Query list count'})\n  OutputConfirm     → outputConfirmFuncSetting and retValues must be provided (fixed 1 item: {id:'result',name:'Confirmed or not'})\n  OutputUpload      → outputUploadFuncSetting and retValues must be provided (fixed 1 item: {id:'result',name:'File list'})\n                       When referenced in subsequent steps use ${fileList} instead of ${result}, and use ${fileList.size()} for the count\n  OutputDynamicForm → outputDynamicFormFuncSetting and retValues must be provided (fixed 1 item: {id:'result',name:'Form data'})\n  SetReturnValue    → no additional setting required"
+					"description": "Automation step node. [type → Required setting and retValues rules (mandatory; missing any is a serious error)] [Control Flow] If → ifFuncSetting + children (exactly 2 children: first If.true, second If.false) If.true → no setting, child of If If.false → no setting, child of If ForEach → forEachFuncSetting + retValues ({id:'object',name:'List item'}, {id:'idx',name:'Index'}) While → whileFuncSetting, children steps SetReturnValue → setReturnValueFuncSetting [Call] CallScript → callScriptFuncSetting + retValues ({id:'result',name:'Return value'}) [Records] QueryRecordList → + retValues ({id:'list',name:'Record list'}), use ${Record list}.size() [UI-Dialog] OutputConfirm → outputConfirmFuncSetting + retValues ({id:'result',name:'Confirmed'}) OutputUpload → outputUploadFuncSetting + retValues ({id:'result',name:'File list'}) OutputUploadExcel → outputUploadExcelFuncSetting + retValues ({id:'result',name:'Excel data'}) OutputDynamicForm → outputDynamicFormFuncSetting + retValues ({id:'result',name:'Form data'}) OutputDynamicTable → outputDynamicTableFuncSetting + retValues ({id:'result',name:'Table data'}) OutputRecordInfo → outputRecordInfoFuncSetting OutputRecordCreate → outputRecordCreateFuncSetting + retValues ({id:'result',name:'Created record'}) OutputRecordSelect → outputRecordSelectFuncSetting + retValues ({id:'result',name:'Selected records'}) OutputFormDesigner → outputFormDesignerFuncSetting + retValues ({id:'result',name:'Form data'}) OutputOpenFile → outputOpenFileFuncSetting OutputRichtext → outputRichtextFuncSetting OutputString → outputStringFuncSetting OutputPageDesigner → outputPageDesignerFuncSetting OutputOpenSplitDrawer → outputOpenSplitDrawerFuncSetting [UI-Toast] OutputToast → outputToastFuncSetting OutputNotification → outputNotificationFuncSetting [UI-Form] OutputSetFormValue → outputSetFormValueFuncSetting OutputFormValidate → outputFormValidateFuncSetting (no fields) OutputRecordFormRefresh → outputRecordFormRefreshFuncSetting OutputCloseRecordInfo → outputCloseRecordInfoFuncSetting (no fields) OutputStableDiffusionSetForm → outputStableDiffusionSetFormFuncSetting [UI-Table] OutputTableRefresh → outputTableRefreshFuncSetting OutputTableEvent → outputTableEventFuncSetting OutputRefreshTableViewColumn → outputRefreshTableViewColumnFuncSetting OutputSetTableViewFilter → outputSetTableViewFilterFuncSetting OutputSetTableViewFilterCondition → outputSetTableViewFilterConditionFuncSetting OutputSetTableViewOrderBy → outputSetTableViewOrderByFuncSetting OutputSetTableViewExpand → outputSetTableViewExpandFuncSetting OutputSetTableViewSelection → outputSetTableViewSelectionFuncSetting OutputSetTableViewActiveRecords → outputSetTableViewActiveRecordsFuncSetting OutputSetTableViewRootRecordId → outputSetTableViewRootRecordIdFuncSetting OutputSetTableViewData → outputSetTableViewDataFuncSetting OutputSetFormTableSelection → outputSetFormTableSelectionFuncSetting [UI-Dashboard] OutputRefreshDashboardCard → outputRefreshDashboardCardFuncSetting OutputSetDashboardFilter → outputSetDashboardFilterFuncSetting [UI-Navigation] OutputOpenUrl → outputOpenUrlFuncSetting OutputOpenWebsite → outputOpenWebsiteFuncSetting OutputExternal → outputExternalFuncSetting OutputSetExternalUrl → outputSetExternalUrlFuncSetting OutputCloseModuleVisitHistory → outputCloseModuleVisitHistoryFuncSetting [UI-Print/Download] OutputPrintRecord → outputPrintRecordFuncSetting OutputPrintRecordList → outputPrintRecordListFuncSetting OutputPrintByPageDesigner → outputPrintByPageDesignerFuncSetting OutputDownloadFile → outputDownloadFileFuncSetting OutputDownloadExcel → outputDownloadExcelFuncSetting [UI-Script/Clipboard/Media] OutputCopyClipboard → outputCopyClipboardFuncSetting OutputInjectoutputInjectScriptFuncSetting OutputExecuteoutputExecuteScriptFuncSetting OutputPlayAudio → outputPlayAudioFuncSetting OutputPlayImage → outputPlayImageFuncSetting OutputQRCodeScanner → outputQRCodeScannerFuncSetting (no fields) OutputGetAppClipboard → outputGetAppClipboardFuncSetting + retValues ({id:'result',name:'Clipboard data'}) OutputSetAppClipboard → outputSetAppClipboardFuncSetting OutputTextindexSearch → outputTextindexSearchFuncSetting OutputWebsitePageFireEvent → outputWebsitePageFireEventFuncSetting [UI-BPMN] OutputBpmnEvent → outputBpmnEventFuncSetting OutputBpmnProcess → outputBpmnProcessFuncSetting OutputBpmnTaskInfo → outputBpmnTaskInfoFuncSetting OutputBpmnInstanceInfo → outputBpmnInstanceInfoFuncSetting"
 				}
 			}
 		}

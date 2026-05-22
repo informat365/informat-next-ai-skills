@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "_thread_delete",
+    "description": "Delete the current user's thread by thread ID, also deletes all messages under this thread. Can only delete threads created by yourself.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Thread ID to delete"
+        }
+      },
+      "required": ["id"]
+    }
+  }
+}

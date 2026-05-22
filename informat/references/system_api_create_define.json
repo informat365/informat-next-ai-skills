@@ -44,7 +44,7 @@
 				},
 				"scriptFunc": {
 					"type": "string",
-					"description": "Script function name"
+					"description": "Script function name. IMPORTANT: The function must exist in the script file specified by scriptId and must be exported using `export function`. Do NOT provide a function name that does not exist or is not exported."
 				},
 				"afterScriptId": {
 					"type": "string",

@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "_thread_message_delete",
+    "description": "Delete a specific thread message by message ID. Can only delete messages from threads created by yourself.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Message ID to delete"
+        }
+      },
+      "required": ["id"]
+    }
+  }
+}

@@ -203,7 +203,7 @@
               "properties": {
                 "fieldId": { "type": "string" },
                 "targetTableId": { "type": "string" },
-                "targetFieldId": { "type": "string" }
+                "targetFieldId": { "type": "string", "description": "Target field ID, must be a persisted/stored field. Cannot use RelationListField or LookupListField." }
               },
               "required": ["fieldId", "targetTableId", "targetFieldId"]
             },
@@ -232,7 +232,7 @@
                         "type": "object",
                         "properties": {
                           "fieldId": { "type": "string" ,"description": "Usually the foreign key field ID in the child table" },
-                          "opt": { "type": "string","description": "Comparison operator, optional values: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, between, notbetween, parenteq, parentrooteq, parentcontains, multipleandquery, multipleorquery, intree. Undefined operators must not be used."},
+                          "opt": { "type": "string","description": "Comparison operator, optional values: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, parenteq, parentrooteq, parentcontains, multipleandquery, multipleorquery, intree. Undefined operators must not be used."},
 						  "var": { "type": "boolean" ,"description": "Whether the comparison value is an expression, default true" },
                           "value": { "type": "string","description": "Comparison value, usually using ${record.id} to reference the current main table record"}
                         },

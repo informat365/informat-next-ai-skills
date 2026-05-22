@@ -1,0 +1,29 @@
+{
+	"type": "function",
+	"function": {
+		"name": "_wb_create_instance",
+		"description": "Create and start a workflow process instance. ⚠️ Must first call _wb_get_process_define to get the configuration information of the specified workflow process definition, then construct the request parameters according to the returned configuration.",
+		"parameters": {
+			"type": "object",
+			"properties": {
+				"appId": {
+					"type": "string",
+					"description": "The ID of the application where the workflow module is located."
+				},
+				"moduleId": {
+					"type": "string",
+					"description": "Workflow module ID."
+				},
+				"processDefineId": {
+					"type": "string",
+					"description": "Workflow process definition ID. Note this is not the procDefId field returned from instance list."
+				},
+				"inputVarMap": {
+					"type": "object",
+					"description": "Input variables for the process instance, key-value pairs format, optional."
+				}
+			},
+			"required": ["appId", "moduleId", "processDefineId"]
+		}
+	}
+}

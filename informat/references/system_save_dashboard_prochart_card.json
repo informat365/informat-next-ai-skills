@@ -2,7 +2,7 @@
   "type": "function",
   "function": {
     "name": "_save_dashboard_prochart_card",
-    "description": "Create or edit dashboard cards in the dashboard. Only cards of type ProChart can be created or modified. Important notes: 1. Data source rules: When type=\"table\", the field id in dimensionList must be the actual column name from the SQL query result. Do not fabricate or use non-existent field names. 1.1 When aggregation query is not enabled, the field source is the original fields returned from directly querying the data table. Naming rule: id must exactly match the column name in the database table. 1.2 When aggregation query is enabled, the aggregation column format is fieldName_functionName, and aggregation is prohibited for id and seq fields. That means fieldId in aggregationQueryList cannot be id or seq, other fields must be used. 2. Stacked chart rules: When implementing stacking effects, a separate data source and corresponding chart instance must be created for each stacked series. In the series array, datasetIndex corresponds to the data source index, and each chart's datasetIndex value should correspond one-to-one with the data source index. Example: To display \"quantity of each punch type for each employee\" using a bar chart, separate data sources and charts need to be created for \"Punch Type A\", \"Punch Type B\", etc. If Punch Type A data source has index 0 in dataset, and Punch Type B has index 1, then datasetIndex in the chart needs to be set to 0 and 1 respectively. Before creating or modifying cards, you need to plan which data sources and charts are needed in advance to set the correct datasetIndex. 3. Style rules: The chart title position must be set to ensure it does not overlap with the legend area. 4. The final generated content needs to be JSON parsed, so it must conform to JSON specification. Functions are not allowed. 5. [Color rules - strictly follow] All color fields must use standard 6-digit HEX format strings, such as '#67e0e3', '#5B8FF9'; rgba(...), rgb(...), hsl(...) formats are strictly prohibited; functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited (color field can only be a string constant, not a function); black (#000000) and gray colors are not allowed.",
+    "description": "Create or edit dashboard cards in the dashboard. Only cards of type ProChart can be created or modified. Important notes: 1. Data source rules: When type=\"table\", the field id in dimensionList must be the actual column name from the SQL query result. Do not fabricate or use non-existent field names. 1.1 When aggregation query is not enabled, the field source is the original fields returned from directly querying the data table. Naming rule: id must exactly match the column name in the database table. 1.2 When aggregation query is enabled, the aggregation column format is fieldName_functionName, and aggregation is prohibited for id and seq fields. That means fieldId in aggregationQueryList cannot be id or seq, other fields must be used. 2. Stacked chart rules: When implementing stacking effects, a separate data source and corresponding chart instance must be created for each stacked series. In the series array, datasetIndex corresponds to the data source index, and each chart's datasetIndex value should correspond one-to-one with the data source index. Example: To display \"quantity of each punch type for each employee\" using a bar chart, separate data sources and charts need to be created for \"Punch Type A\", \"Punch Type B\", etc. If Punch Type A data source has index 0 in dataset, and Punch Type B has index 1, then datasetIndex in the chart needs to be set to 0 and 1 respectively. Before creating or modifying cards, you need to plan which data sources and charts are needed in advance to set the correct datasetIndex. 3. Style rules: The chart title position must be set to ensure it does not overlap with the legend area. 4. The final generated content needs to be JSON parsed, so it must conform to JSON specification. Functions are not allowed. 5. [Color rules - strictly follow] All color fields must use standard 6-digit HEX format strings, such as '#67e0e3', '#5B8FF9'; rgba(...), rgb(...), hsl(...) formats are strictly prohibited; functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited (color field can only be a string constant, not a function); black (#000000) and White (#ffffff) and gray colors are not allowed.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -50,7 +50,7 @@
             },
             "bgColor": {
               "type": "string",
-              "description": "Background color, only effective when bgType is appropriate. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+              "description": "Background color, only effective when bgType is appropriate. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
             },
             "bgImageId": {
               "type": "string",
@@ -240,7 +240,7 @@
                         },
                         "color": {
                           "type": "string",
-                          "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+                          "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
                         }
                       },
                       "required": [
@@ -425,7 +425,7 @@
                         "type": "array",
                         "items": {
                           "type": "object",
-                          "description": "Nested condition group, leave empty when not needed",
+                          "description": "Nested child filter condition group (FilterCondition object array), for complex condition combinations.",
                           "properties": {
                             "opt": {
                               "type": "string",
@@ -433,6 +433,7 @@
                             },
                             "conditionList": {
                               "type": "array",
+                              "description": "Child group filter condition list (Condition object array).",
                               "items": {
                                 "type": "object",
                                 "properties": {
@@ -451,9 +452,7 @@
                                 },
                                 "required": [
                                   "fieldId",
-                                  "opt",
-                                  "value",
-                                  "var"
+                                  "opt"
                                 ]
                               }
                             }
@@ -464,7 +463,7 @@
                         "type": "array",
                         "items": {
                           "type": "object",
-                          "description": "Filter conditions, leave empty when not needed",
+                          "description": "Filter condition list (Condition object array), must not contain FilterCondition objects.",
                           "properties": {
                             "fieldId": {
                               "type": "string",
@@ -472,11 +471,11 @@
                             },
                             "opt": {
                               "type": "string",
-                              "description": "Comparison operator. Only one of the following values can be used: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, between, notbetween."
+                              "description": "Comparison operator. Only one of the following values can be used: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin."
                             },
                             "value": {
                               "type": "string",
-                              "description": "Comparison value or expression (e.g. '1=${filterRecord.name == null ? 1 : 0}'); when the value is boolean or numeric, wrap with ${}, e.g. ${true} or ${100}"
+                              "description": "Comparison value or expression. Required when opt is not isnull and not isnotnull. E.g. '1=${filterRecord.name == null ? 1 : 0}'; when the value is boolean or numeric, wrap with ${}, e.g. ${true} or ${100}"
                             },
                             "var": {
                               "type": "boolean",
@@ -485,9 +484,7 @@
                           },
                           "required": [
                             "fieldId",
-                            "opt",
-                            "value",
-                            "var"
+                            "opt"
                           ]
                         }
                       }
@@ -510,11 +507,11 @@
                       "properties": {
                         "fieldId": {
                           "type": "string",
-                          "description": "Field ID to be aggregated. id and seq fields must not be used for aggregation"
+                          "description": "Field ID to be aggregated. id and seq fields must not be used for aggregation. Note: when func is count, fieldId should NOT be provided (leave empty); when func is avg, sum, max, or min, fieldId is required and the field must be numeric type (Integer or Double)."
                         },
                         "func": {
                           "type": "string",
-                          "description": "Aggregation function. Only one of the following values can be used: count, avg (average), sum, max (maximum), min (minimum). Note: avg, sum, max, min require the field to be numeric type (Integer or Double)."
+                          "description": "Aggregation function. Only one of the following values can be used: count (does NOT require fieldId), avg (average), sum, max (maximum), min (minimum). Note: count does not need fieldId; avg, sum, max, min require fieldId and the field must be numeric type (Integer or Double)."
                         },
                         "distinct": {
                           "type": "boolean",
@@ -523,7 +520,6 @@
                         }
                       },
                       "required": [
-                        "fieldId",
                         "func"
                       ]
                     },
@@ -538,7 +534,7 @@
                   },
                   "dimensionList": {
                     "type": "array",
-                    "description": "Final output data field list, must include fields referenced in chart encode. encode can only use fields listed here, do not fabricate non-existent data fields. If using aggregation fields, field ID format is: 'fieldID_functionName' e.g.: name_count",
+                    "description": "Final output data field list, must include fields referenced in chart encode. encode can only use fields listed here, do not fabricate non-existent data fields. If using aggregation fields: when the aggregation function is count, the field ID is count; for other aggregation functions, the field ID format is: 'fieldID_functionName' e.g.: name_sum.",
                     "items": {
                       "type": "object",
                       "properties": {
@@ -676,11 +672,11 @@
                         "properties": {
                           "color": {
                             "type": "string",
-                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
                           },
                           "borderColor": {
                             "type": "string",
-                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
                           },
                           "borderWidth": {
                             "type": "number",
@@ -693,12 +689,12 @@
                         "properties": {
                           "color": {
                             "type": "string",
-                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed.",
+                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed.",
                             "pattern": "^#[0-9a-fA-F]{6}$"
                           },
                           "borderColor": {
                             "type": "string",
-                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
                           },
                           "borderWidth": {
                             "type": "number",
@@ -810,7 +806,7 @@
                         "properties": {
                           "color": {
                             "type": "string",
-                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and gray colors are not allowed."
+                            "description": "Color value. [Color rules - strictly follow]: ① Only use standard 6-digit HEX format, e.g. '#67e0e3', '#5B8FF9'; ② rgba(...), rgb(...), hsl(...) formats are strictly prohibited; ③ Functions, arrow functions, or any dynamic expressions for setting colors are strictly prohibited, color field can only be a string constant; ④ Black (#000000) and White (#ffffff) and gray colors are not allowed."
                           },
                           "opacity": {
                             "type": "number",

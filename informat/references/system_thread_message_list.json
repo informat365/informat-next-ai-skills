@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "function": {
+    "name": "_thread_message_list",
+    "description": "Query the message list of a specified thread, sorted by message ID in ascending order. Can only query messages from threads created by yourself.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "threadId": {
+          "type": "string",
+          "description": "Thread ID"
+        }
+      },
+      "required": ["threadId"]
+    }
+  }
+}

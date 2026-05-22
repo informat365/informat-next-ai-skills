@@ -2,7 +2,7 @@
 	"type": "function",
 	"function": {
 		"name": "_create_table_module",
-		"description": "Create a new data table. The table ID, table name, and field configuration list must be provided. Field types and related configurations must strictly comply with the definition rules, and non-existent types, fields, or table IDs must not be fabricated.",
+		"description": "Create a new data table. The table ID, table name, and field configuration list must be provided. Field types and related configurations must strictly comply with the definition rules, and non-existent types, fields, or table IDs must not be fabricated. Note: After creating a data table, the system automatically adds four buttons to the default view toolbar: Create Record, Delete Record, Batch Import, and Export Data. There is no need to manually create these buttons.",
 		"parameters": {
 			"type": "object",
 			"properties": {
@@ -17,6 +17,12 @@
 				"parentId": {
 					"type": "string",
 					"description": "Module group ID, the tool_query_app_define_designer can obtain the list of module group definitions"
+				},
+				"dataSourceType": {
+					"type": "string",
+					"description": "Data source type. default: standard database table; dbview: database view, primarily used for multi-table query aggregation scenarios (requires setting SQL query via _table_save_datasource_dbview method). Note: In dbview mode, the field list (fields) must also be provided. These fields define the view's output column structure, and the AS aliases in SQL SELECT must correspond to the field ids.",
+					"enum": ["default", "dbview"],
+					"default": "default"
 				},
 				"fieldGroups": {
 					"type": "array",
@@ -227,7 +233,7 @@
 														"fieldId": { "type": "string" ,"description": "Usually the foreign key field ID in the sub-table" },
 														"opt": {
 															"type": "string",
-															"description": "Comparison operator, optional values: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, between, notbetween, parenteq, parentrooteq, parentcontains, multipleandquery, multipleorquery, intree. Undefined operators must not be used."
+															"description": "Comparison operator, optional values: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, parenteq, parentrooteq, parentcontains, multipleandquery, multipleorquery, intree. Undefined operators must not be used."
 														},
 														"var": { "type": "boolean" ,"description": "Whether the comparison value is an expression, default is true" },
 														"value": { "type": "string","description": "Comparison value, usually use ${record.id} to reference the current main table record"}

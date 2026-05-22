@@ -1,0 +1,20 @@
+{
+  "type": "function",
+  "function": {
+    "name": "_thread_list",
+    "description": "Query the current user's thread list, returning the most recent 100 threads sorted by creation time in descending order.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "moduleId": {
+          "type": "string",
+          "description": "Module ID, used to filter threads under a specific module"
+        },
+        "aiModuleId": {
+          "type": "string",
+          "description": "Informat AI agent ID, used to filter threads of a specific AI agent"
+        }
+      }
+    }
+  }
+}
