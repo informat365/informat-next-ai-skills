@@ -20,7 +20,7 @@
         },
         "action": {
           "type": "string",
-          "description": "Button trigger behavior type. Options: RecordCreateRow (add a row), RecordDeleteRowList (delete selected rows), CallScript (call script), CallAutomatic (call automation)"
+          "description": "Button trigger behavior type. Options: RecordCreateRow (add a row; which fields are editable in the new row depends on the columnList in relationSetting or lookupListSetting — only columns with edit=true are editable), RecordDeleteRowList (delete selected rows), CallScript (call script), CallAutomatic (call automation)"
         },
         "actionSetting": {
           "type": "object",
@@ -116,16 +116,9 @@
             }
           }
         },
-        "visibleRoleList": {
-          "type": "array",
-          "description": "Visible role list. Only roles in this list can see the button. Empty or omitted means visible to all roles.",
-          "items": {
-            "type": "string"
-          }
-        },
         "hideExpression": {
           "type": "string",
-          "description": "Hide button when expression condition is met. Button is hidden when expression evaluates to true."
+          "description": "Hide button when expression condition is met. Button is hidden when expression evaluates to true. Note: visibleRoleList is deprecated. Use hideExpression and disableExpression for button permission control."
         },
         "disableExpression": {
           "type": "string",

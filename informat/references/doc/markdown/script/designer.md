@@ -611,9 +611,7 @@ informat.designer.getDefineObject('App', 'ho3o7sqabzkc1');
           },
           "switchSetting": {
             "type": "primary"
-          },
-          "visibleRoleList": [
-          ]
+          }
         },
         {
           "action": "RecordDelete",
@@ -667,9 +665,7 @@ informat.designer.getDefineObject('App', 'ho3o7sqabzkc1');
           },
           "switchSetting": {
             "type": "primary"
-          },
-          "visibleRoleList": [
-          ]
+          }
         }
       ]
     }
@@ -852,9 +848,7 @@ informat.designer.getDefineObjectList({
         },
         "switchSetting": {
           "type": "primary"
-        },
-        "visibleRoleList": [
-        ]
+        }
       },
       {
         "action": "OpenSplitDrawer",
@@ -919,9 +913,7 @@ informat.designer.getDefineObjectList({
         },
         "switchSetting": {
           "type": "primary"
-        },
-        "visibleRoleList": [
-        ]
+        }
       }
     ],
     "icon": "node-tree",
@@ -1178,9 +1170,7 @@ informat.designer.getDefineObjectList({
             },
             "switchSetting": {
               "type": "primary"
-            },
-            "visibleRoleList": [
-            ]
+            }
           },
           {
             "action": "RecordDelete",
@@ -1234,9 +1224,7 @@ informat.designer.getDefineObjectList({
             },
             "switchSetting": {
               "type": "primary"
-            },
-            "visibleRoleList": [
-            ]
+            }
           }
         ]
       }

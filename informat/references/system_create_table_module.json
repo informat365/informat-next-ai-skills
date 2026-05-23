@@ -21,7 +21,10 @@
 				"dataSourceType": {
 					"type": "string",
 					"description": "Data source type. default: standard database table; dbview: database view, primarily used for multi-table query aggregation scenarios (requires setting SQL query via _table_save_datasource_dbview method). Note: In dbview mode, the field list (fields) must also be provided. These fields define the view's output column structure, and the AS aliases in SQL SELECT must correspond to the field ids.",
-					"enum": ["default", "dbview"],
+					"enum": [
+						"default",
+						"dbview"
+					],
 					"default": "default"
 				},
 				"fieldGroups": {
@@ -30,7 +33,10 @@
 						"type": "object",
 						"description": "Field group configuration.",
 						"properties": {
-							"id": {"type": "string","description": "Group ID (all lowercase English letters, starting with a letter, 10 random letters. The group field in the field list below stores this group ID)"}
+							"id": {
+								"type": "string",
+								"description": "Group ID (all lowercase English letters, starting with a letter, 10 random letters. The group field in the field list below stores this group ID)"
+							}
 						}
 					}
 				},
@@ -57,10 +63,10 @@
 								"description": "Field icon identifier. Only the following values can be used (must match the spelling exactly; do not invent other icons):\ntext, number-1, checkbox-circle, attachment, check, user, map-2, link, node-tree, hashtag"
 							},
 							"displayWidth": {
-				                "type": "integer",
-				                "default": 50,
+								"type": "integer",
+								"default": 50,
 								"description": "Display width of the field in the table. Only one of the following integer values can be used: 25, 50, 75, 100. The default value is 50. For Children, LookupList, Relation, and RichText type fields, 100 is recommended; for other types, 50 is recommended."
-				             },
+							},
 							"remark": {
 								"type": "string",
 								"description": "Field remark description, optional."
@@ -103,37 +109,65 @@
 													"description": "Color, such as #5B8FF9,#57CA8C,#5D7092,#FAAD14,#E86452,#56C1EC,#945FB9,#FF9845, etc., you can design different colors yourself"
 												}
 											},
-											"required": ["id", "name", "color"]
+											"required": [
+												"id",
+												"name",
+												"color"
+											]
 										}
 									}
 								},
-								"required": ["nullable","multiple","optionList"]
+								"required": [
+									"nullable",
+									"multiple",
+									"optionList"
+								]
 							},
 							"attachmentSetting": {
 								"type": "object",
 								"description": "Required when type is Attachment, used to define attachments.",
 								"properties": {
-									"nullable": { "type": "boolean" },
-									"multiple": { "type": "boolean" },
-									"acceptTypes": { "type": "string","description":"Only accept file type suffixes of the following types, such as .png, .jpg, etc. Default is empty, which means no restriction on file types" }
+									"nullable": {
+										"type": "boolean"
+									},
+									"multiple": {
+										"type": "boolean"
+									},
+									"acceptTypes": {
+										"type": "string",
+										"description": "Only accept file type suffixes of the following types, such as .png, .jpg, etc. Default is empty, which means no restriction on file types"
+									}
 								},
-								"required": ["nullable","multiple"]
+								"required": [
+									"nullable",
+									"multiple"
+								]
 							},
 							"formulaSetting": {
 								"type": "object",
 								"description": "Required when type is Formula. Formula is a [database calculated field], and its calculation logic is completely executed by PostgreSQL, not by Zhixin expressions or front-end expressions.\n\nImportant Notes (please strictly comply):\n- formula is not a Zhixin expression, does not support ${ }, if, ternary operators or any Zhixin built-in functions\n- formula must be a valid PostgreSQL expression (SELECT clause level)\n- Only PostgreSQL built-in functions, operators and SQL syntax are allowed\n- For conditional judgment, please use SQL's case when syntax instead of if\n\nApplicable scenarios:\n- String concatenation, numerical calculation, conditional derivation\n- Amount totaling, status calculation, field derivation display\n\nThe value of this field is dynamically calculated by the database during query, and is usually a read-only field.",
 								"properties": {
-									"formula": { "type": "string","description":"PostgreSQL calculation expression (not Zhixin expression).\n\nRule description:\n- The expression must comply with PostgreSQL 13 syntax specifications\n- The table field ID can be directly used as the column name to participate in calculations\n- Supports PostgreSQL built-in functions and SQL expressions\n- Does not support Zhixin expression syntax such as ${ }, if, ?: \n\nExamples:\n- concat(name, '-', grade)\n- price * quantity\n- coalesce(actual_cost, 0) - coalesce(budget, 0)\n- case when progress >= 100 then 'Completed' else 'In Progress' end" }
+									"formula": {
+										"type": "string",
+										"description": "PostgreSQL calculation expression (not Zhixin expression).\n\nRule description:\n- The expression must comply with PostgreSQL 13 syntax specifications\n- The table field ID can be directly used as the column name to participate in calculations\n- Supports PostgreSQL built-in functions and SQL expressions\n- Does not support Zhixin expression syntax such as ${ }, if, ?: \n\nExamples:\n- concat(name, '-', grade)\n- price * quantity\n- coalesce(actual_cost, 0) - coalesce(budget, 0)\n- case when progress >= 100 then 'Completed' else 'In Progress' end"
+									}
 								},
-								"required": ["formula"]
+								"required": [
+									"formula"
+								]
 							},
 							"checkboxSetting": {
 								"type": "object",
 								"description": "Required when type is Checkbox, used to define checkboxes.",
 								"properties": {
-									"defaultValue": { "type": "boolean","description":"Whether it is selected, the default value is false"}
+									"defaultValue": {
+										"type": "boolean",
+										"description": "Whether it is selected, the default value is false"
+									}
 								},
-								"required": ["defaultValue"]
+								"required": [
+									"defaultValue"
+								]
 							},
 							"relationSetting": {
 								"type": "object",
@@ -142,9 +176,63 @@
 									"tableId": {
 										"type": "string",
 										"description": "Associated target table ID (must actually exist)."
+									},
+									"columnList": {
+										"type": "array",
+										"description": "List of fields to display in the child table grid",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string",
+													"description": "Field ID"
+												},
+												"name": {
+													"type": "string",
+													"description": "Column name"
+												},
+												"type": {
+													"type": "string",
+													"description": "Type: field or button, default field"
+												},
+												"width": {
+													"type": "string",
+													"description": "Column width, default 150"
+												},
+												"align": {
+													"type": "string",
+													"description": "Alignment: left, center, right, default left"
+												},
+												"fixed": {
+													"type": "string",
+													"description": "Fixed position: left, right, can be empty"
+												},
+												"edit": {
+													"type": "boolean",
+													"description": "Whether editable"
+												},
+												"editExpression": {
+													"type": "string",
+													"description": "Editable when expression condition is met"
+												},
+												"hideExpression": {
+													"type": "string",
+													"description": "Hidden when expression condition is met"
+												},
+												"summaryFunc": {
+													"type": "string",
+													"description": "Summary function: sum, avg, min, max, count, can be empty"
+												}
+											},
+											"required": [
+												"id"
+											]
+										}
 									}
 								},
-								"required": ["tableId"]
+								"required": [
+									"tableId"
+								]
 							},
 							"relationRollupSetting": {
 								"type": "object",
@@ -163,7 +251,10 @@
 										"description": "ID of the field in the sub-table that participates in aggregate calculation (optional for count, mandatory for others)."
 									}
 								},
-								"required": ["relationFieldId","func"]
+								"required": [
+									"relationFieldId",
+									"func"
+								]
 							},
 							"relationRecordSetting": {
 								"type": "object",
@@ -182,7 +273,11 @@
 										"description": "ID of the field used for display name in the target table (must actually exist)."
 									}
 								},
-								"required": ["nullable", "tableId", "nameFieldId"]
+								"required": [
+									"nullable",
+									"tableId",
+									"nameFieldId"
+								]
 							},
 							"relationRecordFieldSetting": {
 								"type": "object",
@@ -201,7 +296,11 @@
 										"description": "ID of the field in the target table that is derived and displayed."
 									}
 								},
-								"required": ["fieldId", "targetTableId", "targetFieldId"]
+								"required": [
+									"fieldId",
+									"targetTableId",
+									"targetFieldId"
+								]
 							},
 							"lookupListSetting": {
 								"type": "object",
@@ -218,34 +317,105 @@
 											"conditionList": {
 												"type": "array",
 												"examples": [
-											      [
-											        {
-											          "fieldId": "projectId",
-											          "opt": "eq",
-													  "var": true,
-											          "value": "${record.id}"
-											        }
-											      ]
-											   ],
+													[
+														{
+															"fieldId": "projectId",
+															"opt": "eq",
+															"var": true,
+															"value": "${record.id}"
+														}
+													]
+												],
 												"items": {
 													"type": "object",
 													"properties": {
-														"fieldId": { "type": "string" ,"description": "Usually the foreign key field ID in the sub-table" },
+														"fieldId": {
+															"type": "string",
+															"description": "Usually the foreign key field ID in the sub-table"
+														},
 														"opt": {
 															"type": "string",
 															"description": "Comparison operator, optional values: eq, ne, gt, ge, lt, le, contains, notcontains, startswith, endswith, isnull, isnotnull, in, notin, parenteq, parentrooteq, parentcontains, multipleandquery, multipleorquery, intree. Undefined operators must not be used."
 														},
-														"var": { "type": "boolean" ,"description": "Whether the comparison value is an expression, default is true" },
-														"value": { "type": "string","description": "Comparison value, usually use ${record.id} to reference the current main table record"}
+														"var": {
+															"type": "boolean",
+															"description": "Whether the comparison value is an expression, default is true"
+														},
+														"value": {
+															"type": "string",
+															"description": "Comparison value, usually use ${record.id} to reference the current main table record"
+														}
 													},
-													"required": ["fieldId", "opt", "var", "value"]
+													"required": [
+														"fieldId",
+														"opt",
+														"var",
+														"value"
+													]
 												}
 											}
 										},
-										"required": ["conditionList"]
+										"required": [
+											"conditionList"
+										]
+									},
+									"columnList": {
+										"type": "array",
+										"description": "List of fields to display in the child table grid",
+										"items": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string",
+													"description": "Field ID"
+												},
+												"name": {
+													"type": "string",
+													"description": "Column name"
+												},
+												"type": {
+													"type": "string",
+													"description": "Type: field or button, default field"
+												},
+												"width": {
+													"type": "string",
+													"description": "Column width, default 150"
+												},
+												"align": {
+													"type": "string",
+													"description": "Alignment: left, center, right, default left"
+												},
+												"fixed": {
+													"type": "string",
+													"description": "Fixed position: left, right, can be empty"
+												},
+												"edit": {
+													"type": "boolean",
+													"description": "Whether editable"
+												},
+												"editExpression": {
+													"type": "string",
+													"description": "Editable when expression condition is met"
+												},
+												"hideExpression": {
+													"type": "string",
+													"description": "Hidden when expression condition is met"
+												},
+												"summaryFunc": {
+													"type": "string",
+													"description": "Summary function: sum, avg, min, max, count, can be empty"
+												}
+											},
+											"required": [
+												"id"
+											]
+										}
 									}
 								},
-								"required": ["tableId", "filter"]
+								"required": [
+									"tableId",
+									"filter"
+								]
 							},
 							"lookupRollupSetting": {
 								"type": "object",
@@ -268,7 +438,11 @@
 										"description": "Summary field of the sub-table. This field is mandatory when the summary method is sum, maximum, minimum, or average."
 									}
 								},
-								"required": ["tableId", "relationRecordFieldId","func"]
+								"required": [
+									"tableId",
+									"relationRecordFieldId",
+									"func"
+								]
 							},
 							"childrenSetting": {
 								"type": "object",
@@ -283,7 +457,10 @@
 										"description": "ID of the field used for display name (usually a SingleText type field)."
 									}
 								},
-								"required": ["nullable", "nameFieldId"]
+								"required": [
+									"nullable",
+									"nameFieldId"
+								]
 							},
 							"userSetting": {
 								"type": "object",
@@ -298,7 +475,10 @@
 										"description": "Whether multiple selection is supported. Default is false"
 									}
 								},
-								"required": ["nullable","multiple"]
+								"required": [
+									"nullable",
+									"multiple"
+								]
 							},
 							"departmentSetting": {
 								"type": "object",
@@ -313,7 +493,10 @@
 										"description": "Whether multiple selection is supported. Default is false"
 									}
 								},
-								"required": ["nullable","multiple"]
+								"required": [
+									"nullable",
+									"multiple"
+								]
 							},
 							"dateSetting": {
 								"type": "object",
@@ -324,7 +507,9 @@
 										"description": "Whether it can be null. Default is true"
 									}
 								},
-								"required": ["nullable"]
+								"required": [
+									"nullable"
+								]
 							},
 							"integerSetting": {
 								"type": "object",
@@ -341,13 +526,15 @@
 									"min": {
 										"type": "integer",
 										"description": "Minimum value, only valid when enableRange is true"
-									},									
+									},
 									"max": {
 										"type": "integer",
 										"description": "Maximum value, only valid when enableRange is true"
 									}
 								},
-								"required": ["nullable"]
+								"required": [
+									"nullable"
+								]
 							},
 							"doubleSetting": {
 								"type": "object",
@@ -364,13 +551,15 @@
 									"min": {
 										"type": "integer",
 										"description": "Minimum value, only valid when enableRange is true"
-									},									
+									},
 									"max": {
 										"type": "integer",
 										"description": "Maximum value, only valid when enableRange is true"
 									}
 								},
-								"required": ["nullable"]
+								"required": [
+									"nullable"
+								]
 							},
 							"singleTextSetting": {
 								"type": "object",
@@ -385,7 +574,10 @@
 										"description": "Placeholder in the form when not filled in"
 									}
 								},
-								"required": ["nullable","placeholder"]
+								"required": [
+									"nullable",
+									"placeholder"
+								]
 							},
 							"iDSetting": {
 								"type": "object",
@@ -400,14 +592,25 @@
 										"description": "Method for automatically resetting the seq sequence. Only one of the following values can be used:\nday (reset at 00:00 every day), month (reset at 00:00 on the 1st day of each month), year (reset at 00:00 on January 1st every year)."
 									}
 								},
-								"required": ["expression"]
+								"required": [
+									"expression"
+								]
 							}
 						},
-						"required": ["id", "name", "type", "icon"]
+						"required": [
+							"id",
+							"name",
+							"type",
+							"icon"
+						]
 					}
 				}
 			},
-			"required": ["id", "name", "fields"]
+			"required": [
+				"id",
+				"name",
+				"fields"
+			]
 		}
 	}
 }

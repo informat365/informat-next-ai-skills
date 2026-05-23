@@ -166,7 +166,39 @@
               "type": "object",
 			  "description": "Association list (Relation), used to model many-to-many (M:N) relationships between two data tables. The system maintains the mapping between both parties through intermediate association relationships.\n\nApplicable scenarios:\n- A record can be associated with multiple target records\n- A target record can also be associated with multiple current records\n\nTypical examples:\n- Student ↔ Honor (a student can obtain multiple honors, an honor can belong to multiple students)\n- User ↔ Role (a user has multiple roles, a role has multiple users)\n\nInapplicable scenarios:\n- If the target record can only belong to one of the current records, please use LookupList.\n\nNote:\nThe Relation field itself does not represent foreign key ownership, but rather a peer-to-peer association relationship.",
               "properties": {
-                "tableId": { "type": "string" }
+                "tableId": { "type": "string" },
+                "columnList": {
+                  "type": "array",
+                  "description": "List of fields to display in the child table grid",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "description": "Field ID" },
+                      "name": { "type": "string", "description": "Column name" },
+                      "type": { "type": "string", "description": "Type: field or button, default field" },
+                      "width": { "type": "string", "description": "Column width, default 150" },
+                      "align": { "type": "string", "description": "Alignment: left, center, right, default left" },
+                      "fixed": { "type": "string", "description": "Fixed position: left, right, can be empty" },
+                      "edit": { "type": "boolean", "description": "Whether editable" },
+                      "editExpression": { "type": "string", "description": "Editable when expression condition is met" },
+                      "hideExpression": { "type": "string", "description": "Hidden when expression condition is met" },
+                      "summaryFunc": { "type": "string", "description": "Summary function: sum, avg, min, max, count, can be empty" }
+                    },
+                    "required": ["id"]
+                  }
+                },
+                "createAfterSetRecordValueList": {
+                  "type": "array",
+                  "description": "Set child table record field values after main table record is created. Supported variables: main table record $record, e.g. ${record.id} for main table record ID.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fieldId": { "type": "string", "description": "Child table field ID" },
+                      "value": { "type": "string", "description": "Value expression, e.g. ${record.id}" }
+                    },
+                    "required": ["fieldId", "value"]
+                  }
+                }
               },
               "required": ["tableId"]
             },
@@ -241,9 +273,41 @@
                     }
                   },
                   "required": ["conditionList"]
+                },
+                "columnList": {
+                  "type": "array",
+                  "description": "List of fields to display in the child table grid",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "description": "Field ID" },
+                      "name": { "type": "string", "description": "Column name" },
+                      "type": { "type": "string", "description": "Type: field or button, default field" },
+                      "width": { "type": "string", "description": "Column width, default 150" },
+                      "align": { "type": "string", "description": "Alignment: left, center, right, default left" },
+                      "fixed": { "type": "string", "description": "Fixed position: left, right, can be empty" },
+                      "edit": { "type": "boolean", "description": "Whether editable" },
+                      "editExpression": { "type": "string", "description": "Editable when expression condition is met" },
+                      "hideExpression": { "type": "string", "description": "Hidden when expression condition is met" },
+                      "summaryFunc": { "type": "string", "description": "Summary function: sum, avg, min, max, count, can be empty" }
+                    },
+                    "required": ["id"]
+                  }
+                },
+                "createAfterSetRecordValueList": {
+                  "type": "array",
+                  "description": "Set child table record field values after main table record is created. Supported variables: main table record $record, e.g. ${record.id} for main table record ID.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fieldId": { "type": "string", "description": "Child table field ID" },
+                      "value": { "type": "string", "description": "Value expression, e.g. ${record.id}" }
+                    },
+                    "required": ["fieldId", "value"]
+                  }
                 }
               },
-              "required": ["tableId", "filter"]
+              "required": ["tableId"]
             },
 			"lookupRollupSetting": {
 				"type": "object",

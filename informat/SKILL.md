@@ -6,7 +6,7 @@ when_to_use: "When the user wants to operate Informat platform features such as 
 
 # Informat Platform System Methods
 
-Total 178 methods. The parameter definition file for each method is under `{baseDir}/references/`.
+Total 181 methods. The parameter definition file for each method is under `{baseDir}/references/`.
 > 📚 **Reference Documentation Directory**: `{baseDir}/references/doc/` contains complete platform development documentation:
 > - `references/doc/markdown/` directory: Official platform core feature documentation (AI Assistant, API, Automation, Dashboard, Expression, Scheduled Tasks, Scripts, Data Tables, Tasks, Websites, etc.)
 > - `references/doc/script/` directory: Script API reference documentation, categorized by module (bpmn.md, table.md, form.md, etc.). Consult these first when developing scripts
@@ -322,6 +322,9 @@ Why you must query each table's field structure:
 | [Designer] | `_query_informat_script_list` | Query script list | none |
 | [Designer] | `_query_informat_script_content` | Query script content | `references/system_query_informat_script_content.json` MUST READ |
 | [Designer] | `_execute_informat_script_designer` | Execute script in designer | `references/system_execute_informat_script_designer.json` MUST READ |
+| [Designer] | `_script_save_git_config` | Save script Git repository configuration | `references/system_script_save_git_config.json` MUST READ |
+| [Designer] | `_script_pull_from_git` | Pull scripts from Git repository to application | `references/system_script_pull_from_git.json` MUST READ |
+| [Designer] | `_script_push_to_git` | Push application scripts to Git repository | `references/system_script_push_to_git.json` MUST READ |
 
 ### Scheduled Task - Schedule (Designer)
 

@@ -120,16 +120,9 @@
             }
           }
         },
-        "visibleRoleList": {
-          "type": "array",
-          "description": "Visible role list. Only roles in this list can see the button. Empty or omitted means visible to all roles.",
-          "items": {
-            "type": "string"
-          }
-        },
         "hideExpression": {
           "type": "string",
-          "description": "Hide button when expression condition is met. Button is hidden when expression evaluates to true."
+          "description": "Hide button when expression condition is met. Button is hidden when expression evaluates to true. Note: visibleRoleList is deprecated. Use hideExpression and disableExpression for button permission control."
         },
         "disableExpression": {
           "type": "string",

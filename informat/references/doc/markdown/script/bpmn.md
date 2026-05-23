@@ -1601,8 +1601,7 @@ informat.bpmn.getProcessDefineXml('flow', 'process_rzuwivdv487t:1:8aed09cb-fd70-
               },
               "switchSetting": {
                 "type": "primary"
-              },
-              "visibleRoleList": []
+              }
             },
             {
               "action": "TaskMoveToActivity",
@@ -1640,8 +1639,7 @@ informat.bpmn.getProcessDefineXml('flow', 'process_rzuwivdv487t:1:8aed09cb-fd70-
               },
               "switchSetting": {
                 "type": "primary"
-              },
-              "visibleRoleList": []
+              }
             }
           ]
         },
@@ -2230,8 +2228,7 @@ informat.bpmn.getTaskSetting('process_swf2089hng2j:1:c0cc319f-7a59-11ef-bb07-024
         },
         "switchSetting": {
           "type": "primary"
-        },
-        "visibleRoleList": []
+        }
       },
       {
         "action": "TaskMoveToEnd",
@@ -2273,8 +2270,7 @@ informat.bpmn.getTaskSetting('process_swf2089hng2j:1:c0cc319f-7a59-11ef-bb07-024
         },
         "switchSetting": {
           "type": "primary"
-        },
-        "visibleRoleList": []
+        }
       }
     ]
   },
